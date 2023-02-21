@@ -22,6 +22,7 @@
 #include "mysql_load_error_hub.h"
 #include "util/defer_op.h"
 
+
 namespace doris {
 
 MysqlLoadErrorHub::MysqlLoadErrorHub(const TMysqlErrorHubInfo& info) : _info(info) {}
