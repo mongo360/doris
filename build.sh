@@ -32,6 +32,7 @@
 # You need to make sure all thirdparty libraries have been
 # compiled and installed correctly.
 ##############################################################
+echo $JAVA_HOME
 
 set -eo pipefail
 

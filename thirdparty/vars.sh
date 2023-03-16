@@ -200,7 +200,7 @@ LEVELDB_MD5SUM="afbde776fb8760312009963f09a586c7"
 # brpc
 BRPC_DOWNLOAD="https://github.com/apache/incubator-brpc/archive/refs/tags/1.2.0.tar.gz"
 BRPC_NAME="incubator-brpc-1.2.0.tar.gz"
-BRPC_SOURCE="incubator-brpc-1.2.0"
+BRPC_SOURCE="brpc-1.2.0"
 BRPC_MD5SUM="556c024d5f770dbd2336ca4541ae8c96"
 
 # rocksdb
