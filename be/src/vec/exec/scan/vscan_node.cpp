@@ -1025,10 +1025,7 @@ Status VScanNode::_should_push_down_binary_predicate(
 VScanNode::PushDownType VScanNode::_should_push_down_in_predicate(VInPredicate* pred,
                                                                   VExprContext* expr_ctx,
                                                                   bool is_not_in) {
-    if (pred->is_not_in() != is_not_in) {
-        return PushDownType::UNACCEPTABLE;
-    }
-    return PushDownType::ACCEPTABLE;
+    return PushDownType::UNACCEPTABLE;
 }
 
 } // namespace doris::vectorized
