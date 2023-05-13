@@ -81,6 +81,11 @@ done
 # DORIS_JNI_CLASSPATH_PARAMETER is used to configure additional jar path to jvm. e.g. -Djava.class.path=$DORIS_HOME/lib/java-udf.jar
 export DORIS_JNI_CLASSPATH_PARAMETER="-Djava.class.path=${DORIS_JNI_CLASSPATH_PARAMETER}"
 
+# JAVA_OPTS evn config
+# set JAVA_OPTS here or set JAVA_OPTS to empty then use be.conf JAVA_OPTS or default value
+# export JAVA_OPTS=""
+export JAVA_OPTS="-Xmx2048m -Djava.class.path=/export/admin/wangqingtao/narwal_9630/be/lib/java-udf-jar-with-dependencies.jar -DlogPath=/export/admin/wangqingtao/narwal_9630/be/log/udf-jdbc.log -Djava.compiler=NONE -XX::-CriticalJNINatives"
+
 jdk_version() {
     local java_cmd="${1}"
     local result
