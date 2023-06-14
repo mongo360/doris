@@ -34,10 +34,10 @@ public class Config extends ConfigBase {
      * sys_log_dir:
      *      This specifies FE log dir. FE will produces 2 log files:
      *      fe.log:      all logs of FE process.
-     *      fe.warn.log  all WARNING and ERROR log of FE process.
+     *      fe.warn.log  all WARN and ERROR log of FE process.
      *
      * sys_log_level:
-     *      INFO, WARNING, ERROR, FATAL
+     *      INFO, WARN, ERROR, FATAL
      *
      * sys_log_roll_num:
      *      Maximal FE log files to be kept within an sys_log_roll_interval.
@@ -63,9 +63,14 @@ public class Config extends ConfigBase {
      */
     @ConfField
     public static String sys_log_dir = System.getenv("DORIS_HOME") + "/log";
+
     @ConfField
     public static String sys_log_level = "INFO";
     @ConfField public static int sys_log_roll_num = 10;
+
+    @ConfField
+    public static String sys_log_mode = "NORMAL";
+
     @ConfField
     public static String[] sys_log_verbose_modules = {};
     @ConfField public static String sys_log_roll_interval = "DAY";
