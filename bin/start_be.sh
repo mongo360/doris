@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-set -eo pipefail
+#set -eo pipefail
 
 curdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
@@ -310,8 +310,14 @@ export LIBHDFS_OPTS="${final_java_opt}"
 #echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}"
 #echo "LIBHDFS_OPTS: ${LIBHDFS_OPTS}"
 
-# see https://github.com/apache/doris/blob/master/docs/zh-CN/community/developer-guide/debug-tool.md#jemalloc-heap-profile
-export JEMALLOC_CONF="percpu_arena:percpu,background_thread:true,metadata_thp:auto,muzzy_decay_ms:30000,dirty_decay_ms:30000,oversize_threshold:0,lg_tcache_max:16,prof_prefix:jeprof.out"
+jemalloc_conf_env=`grep JEMALLOC_CONF $DORIS_HOME/conf/be.conf`
+if [ ! -z $jemalloc_conf_env ]; then
+   jemalloc_conf_env=`eval "echo $jemalloc_conf_env"`
+   eval 'export "$jemalloc_conf_env"'
+else
+   # see https://github.com/apache/doris/blob/master/docs/zh-CN/community/developer-guide/debug-tool.md#jemalloc-heap-profile
+   export JEMALLOC_CONF="percpu_arena:percpu,background_thread:true,metadata_thp:auto,muzzy_decay_ms:30000,dirty_decay_ms:30000,oversize_threshold:0,lg_tcache_max:16,prof_prefix:jeprof.out"
+fi
 
 if [[ "${RUN_DAEMON}" -eq 1 ]]; then
     nohup ${LIMIT:+${LIMIT}} "${DORIS_HOME}/lib/doris_be" "$@" >>"${LOG_DIR}/be.out" 2>&1 </dev/null &
