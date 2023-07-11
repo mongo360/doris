@@ -63,12 +63,26 @@ Status TupleReader::_init_collect_iter(const ReaderParams& read_params,
     _collect_iter.build_heap(*valid_rs_readers);
     _next_key = _collect_iter.current_row(&_next_delete_flag);
 
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt TupleReader::_init_collect_iter rs_readers: " << rs_readers.size()
+                      << " valid_rs_readers: " << valid_rs_readers->size()
+                      << " _next_key: " << _next_key;
+    }
+    // wqt add end
+
     return Status::OK();
 }
 
 Status TupleReader::init(const ReaderParams& read_params) {
     RETURN_NOT_OK(TabletReader::init(read_params));
 
+    // wqt test srt
+    {
+        VLOG_CRITICAL << "wqt TupleReader::init read_params [" << read_params.to_string() << "]" 
+                      << " need_agg_finalize: " << _need_agg_finalize;
+    }
+    // wqt test end
     std::vector<RowsetReaderSharedPtr> rs_readers;
     auto status = _init_collect_iter(read_params, &rs_readers);
     if (!status.ok()) {
@@ -78,6 +92,9 @@ Status TupleReader::init(const ReaderParams& read_params) {
     if (_optimize_for_single_rowset(rs_readers)) {
         _next_row_func = _tablet->keys_type() == AGG_KEYS ? &TupleReader::_direct_agg_key_next_row
                                                           : &TupleReader::_direct_next_row;
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt TupleReader::_direct_agg_key_next_row"; }
+        // wqt add end
         return Status::OK();
     }
 

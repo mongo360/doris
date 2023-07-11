@@ -167,6 +167,11 @@ Status PlanFragmentExecutor::prepare(const TExecPlanFragmentParams& request,
     _plan->collect_scan_nodes(&scan_nodes);
     VLOG_CRITICAL << "scan_nodes.size()=" << scan_nodes.size();
     VLOG_CRITICAL << "params.per_node_scan_ranges.size()=" << params.per_node_scan_ranges.size();
+    // wqt add srt
+    if(params.per_node_scan_ranges.size() > 0) {
+        VLOG_CRITICAL << "params.per_node_scan_ranges:\n" << apache::thrift::ThriftDebugString(params.per_node_scan_ranges.begin()->second[0]);
+    }
+    // wqt add end
 
     _plan->try_do_aggregate_serde_improve();
 

@@ -57,6 +57,25 @@ std::string TabletReader::ReaderParams::to_string() const {
     for (auto& condition : conditions) {
         ss << " conditions=" << apache::thrift::ThriftDebugString(condition);
     }
+    // wqt add srt
+    {
+        ss << "\ndirect_mode:" << direct_mode;
+        ss << "\nneed_agg_finalize:" << need_agg_finalize;
+        ss << "\nuse_page_cache:" << use_page_cache;
+        ss << "\nbloom_filters:" << bloom_filters.size();
+        ss << "\nbitmap_filters:" << bitmap_filters.size();
+        ss << "\nin_filters:" << in_filters.size();
+        ss << "\nfunction_filters:" << function_filters.size();
+        ss << "\ndelete_predicates:" << delete_predicates.size();
+        ss << "\nrs_readers:" << rs_readers.size();
+        ss << "\nreturn_columns:" << return_columns.size();
+        if(origin_return_columns != nullptr)
+            ss << "\norigin_return_columns:" << origin_return_columns->size();
+        ss << "\npush_down_agg_type_opt:" << push_down_agg_type_opt;
+        ss << "\nprecord_rowids:" << record_rowids;
+        ss << "\nis_key_column_group:" << is_key_column_group;
+    }
+    // wqt add end
 
     return ss.str();
 }

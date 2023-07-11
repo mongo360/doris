@@ -324,6 +324,11 @@ Status VScanNode::_normalize_conjuncts() {
 
     for (int slot_idx = 0; slot_idx < slots.size(); ++slot_idx) {
         switch (slots[slot_idx]->type().type) {
+        // wqt add srt
+        {
+            VLOG_CRITICAL << "wqt VScanNode::_normalize_conjuncts slots:" << slot_idx << " name:" << slots[slot_idx]->col_name();
+        }
+        // wqt add end
 #define M(NAME)                                                                              \
     case TYPE_##NAME: {                                                                      \
         ColumnValueRange<TYPE_##NAME> range(slots[slot_idx]->col_name(),                     \
@@ -360,8 +365,18 @@ Status VScanNode::_normalize_conjuncts() {
         }
         }
     }
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt VScanNode::_normalize_conjuncts _slot_id_to_value_range:" << _slot_id_to_value_range.size();
+    }
+    // wqt add end
     if (_vconjunct_ctx_ptr) {
         if ((*_vconjunct_ctx_ptr)->root()) {
+            // wqt add srt
+            {
+                VLOG_CRITICAL << "wqt VScanNode::_normalize_conjuncts _vconjunct_ctx_ptr:" << (*_vconjunct_ctx_ptr)->root()->debug_string();
+            }
+            // wqt add end
             VExpr* new_root;
             RETURN_IF_ERROR(_normalize_predicate((*_vconjunct_ctx_ptr)->root(), &new_root));
             if (new_root) {

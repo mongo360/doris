@@ -124,6 +124,12 @@ Status BetaRowset::get_segments_size(std::vector<size_t>* segments_size) {
     return Status::OK();
 }
 Status BetaRowset::load_segments(std::vector<segment_v2::SegmentSharedPtr>* segments) {
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt BetaRowset::load_segments start num: " << num_segments()
+                      << " path: " << segment_file_path(0);
+    }
+    // wqt add end
     auto fs = _rowset_meta->fs();
     if (!fs || _schema == nullptr) {
         return Status::Error<INIT_FAILED>();

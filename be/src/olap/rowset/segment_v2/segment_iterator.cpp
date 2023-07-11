@@ -177,6 +177,17 @@ Status SegmentIterator::init(const StorageReadOptions& opts) {
             _col_predicates.emplace_back(predicate);
         }
     }
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt SegmentIterator::init _col_predicates size: " << _col_predicates.size();
+        VLOG_CRITICAL << "wqt SegmentIterator::init opts info: delete_condition_predicates:" << opts.delete_condition_predicates->num_of_column_predicate()
+                      << " col_id_to_predicates:" << opts.col_id_to_predicates.size() 
+                      << " del_predicates_for_zone_map:" << opts.del_predicates_for_zone_map.size();
+        for (auto& predicate : opts.column_predicates) {
+            VLOG_CRITICAL << " wqt SegmentIterator::init predicate: " << predicate->debug_string();
+        }
+    }
+    // wqt add end
 
     // Read options will not change, so that just resize here
     _block_rowids.resize(_opts.block_row_max);
@@ -184,6 +195,9 @@ Status SegmentIterator::init(const StorageReadOptions& opts) {
 }
 
 Status SegmentIterator::_init(bool is_vec) {
+    // wqt add srt
+    { VLOG_CRITICAL << "wqt SegmentIterator::_init"; }
+    // wqt add end
     SCOPED_RAW_TIMER(&_opts.stats->block_init_ns);
     DorisMetrics::instance()->segment_read_total->increment(1);
     // get file handle from file descriptor of segment
@@ -647,7 +661,12 @@ Status SegmentIterator::next_batch(RowBlockV2* block) {
     uint32_t nrows_read_limit = block->capacity();
     const auto& read_columns =
             _lazy_materialization_read ? _predicate_columns : block->schema()->column_ids();
-
+    // wqt add srt
+    { VLOG_CRITICAL << "wqt SegmentIterator::next_batch _lazy: " << _lazy_materialization_read 
+                    << " predicate_columns: " << _predicate_columns.size() 
+                    << " _non_predicate_columns: " << _non_predicate_columns.size() 
+                    << " schema_columns: " << block->schema()->column_ids().size(); }
+    // wqt add end
     // phase 1: read rows selected by various index (indicated by _row_bitmap) into block
     // when using lazy-materialization-read, only columns with predicates are read
     {
@@ -657,6 +676,10 @@ Status SegmentIterator::next_batch(RowBlockV2* block) {
             uint32_t range_to;
             bool has_next_range =
                     _range_iter->next_range(nrows_read_limit - nrows_read, &range_from, &range_to);
+            // wqt add srt
+            { VLOG_CRITICAL << "wqt SegmentIterator::next_batch next_range " << nrows_read << "-"
+                            << range_from << "-" << range_to << "-" << has_next_range; }
+            // wqt add end
             if (!has_next_range) {
                 break;
             }
@@ -691,6 +714,10 @@ Status SegmentIterator::next_batch(RowBlockV2* block) {
     // block's selection vector will be set to indicate which rows have passed predicates.
     // TODO(hkp): optimize column predicate to check column block once for one column
     if (!_col_predicates.empty() || _opts.delete_condition_predicates != nullptr) {
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt SegmentIterator::next_batch col_predicates: " << _col_predicates.size() << " delete_condition_predicates: "
+                    << _opts.delete_condition_predicates; }
+        // wqt add end
         // init selection position index
         uint16_t selected_size = block->selected_size();
         uint16_t original_size = selected_size;
@@ -702,6 +729,11 @@ Status SegmentIterator::next_batch(RowBlockV2* block) {
             column_predicate->evaluate(&column_block, block->selection_vector(), &selected_size);
         }
         _opts.stats->rows_vec_cond_filtered += original_size - selected_size;
+
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt SegmentIterator::next_batch col_predicates res original_size:" << original_size
+                        << " selected_size:"<< selected_size; }
+        // wqt add end
 
         // set original_size again to check delete condition predicates
         // filter how many data

@@ -98,6 +98,9 @@ Status BetaRowsetReader::get_segment_iterators(RowsetReaderContext* read_context
                 read_columns.push_back(cid);
             }
         }
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt BetaRowsetReader::get_segment_iterators tablet_schema_columns:" << _context->tablet_schema->columns().size(); }
+        // wqt add end
         VLOG_NOTICE << "read columns size: " << read_columns.size();
         _input_schema = std::make_shared<Schema>(_context->tablet_schema->columns(), read_columns);
         if (_can_reuse_schema) {
@@ -180,6 +183,11 @@ Status BetaRowsetReader::get_segment_iterators(RowsetReaderContext* read_context
             LOG(WARNING) << "failed to create iterator[" << seg_ptr->id() << "]: " << s.to_string();
             return Status::Error<ROWSET_READER_INIT>();
         }
+        // wqt add srt
+        {
+            VLOG_CRITICAL << " wqt BetaRowsetReader::get_segment_iterators add seg_ptr";
+        }
+        // wqt add end
         seg_iterators.push_back(std::move(iter));
     }
 
@@ -222,6 +230,11 @@ Status BetaRowsetReader::init(RowsetReaderContext* read_context) {
                 // reverse iterators to read backward for ORDER BY key DESC
                 std::reverse(iterators.begin(), iterators.end());
             }
+            // wqt add srt
+            {
+                VLOG_CRITICAL << "wqt BetaRowsetReader::init vectoriztion iterators:" << iterators.size();
+            }
+            // wqt add end
             final_iterator = vectorized::new_union_iterator(iterators);
         }
     } else {

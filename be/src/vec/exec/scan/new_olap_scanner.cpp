@@ -275,6 +275,12 @@ Status NewOlapScanner::_init_tablet_reader_params(
                     olap_scan_node.sort_info.is_asc_order.size();
         }
     }
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt NewOlapScanner::_init_tablet_reader_params: \n" 
+                      << _tablet_reader_params.to_string();                      
+    }
+    // wqt add end
     return Status::OK();
 }
 

@@ -104,6 +104,12 @@ void CollectIterator::build_heap(const std::vector<RowsetReaderSharedPtr>& rs_re
                                                  sort_type, sort_col_num));
         }
     } else {
+        // wqt add srt
+        {
+            VLOG_CRITICAL << "CollectIterator::build_heap create Level1Iterator _children: " << _children.size()
+                          <<" _merge: " << _merge;
+        }
+        // wqt add end
         _inner_iter.reset(new Level1Iterator(_children, _merge, _reverse,
                                              _reader->_sequence_col_idx, &_reader->_merged_rows,
                                              sort_type, sort_col_num));

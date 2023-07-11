@@ -215,10 +215,21 @@ Status Segment::load_index() {
             opts.type = INDEX_PAGE;
             Slice body;
             PageFooterPB footer;
+            // wqt add srt
+            {
+                VLOG_CRITICAL << "wqt Segment::load_index opts.page_pointer " << opts.page_pointer.offset
+                              << "-" << opts.page_pointer.size;
+            }
+            // wqt add end
             RETURN_IF_ERROR(
                     PageIO::read_and_decompress_page(opts, &_sk_index_handle, &body, &footer));
             DCHECK_EQ(footer.type(), SHORT_KEY_PAGE);
             DCHECK(footer.has_short_key_page_footer());
+            // wqt add srt
+            {
+                VLOG_CRITICAL << "wqt Segment::load_index _sk_index_handle:" << _sk_index_handle.data().size;
+            }
+            // wqt add end
 
             _meta_mem_usage += body.get_size();
             _segment_meta_mem_tracker->consume(body.get_size());

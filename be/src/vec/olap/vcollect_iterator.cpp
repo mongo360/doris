@@ -301,9 +301,15 @@ Status VCollectIterator::Level0Iterator::next(Block* block) {
     if (_ref.row_pos <= 0 && _ref.block != nullptr && UNLIKELY(_ref.block->rows() > 0)) {
         block->swap(*_ref.block);
         _ref.reset();
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt Level0Iterator::next use _ref.block"; }
+        // wqt add end
         return Status::OK();
     } else {
         auto res = _rs_reader->next_block(block);
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt Level0Iterator::next use _rs_reader next_block"; }
+        // wqt add end
         if (!res.ok() && !res.is<END_OF_FILE>()) {
             return res;
         }

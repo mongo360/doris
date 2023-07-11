@@ -810,6 +810,13 @@ Status Tablet::capture_rs_readers(const std::vector<Version>& version_path,
             return Status::Error<CAPTURE_ROWSET_READER_ERROR>();
         }
         rs_readers->push_back(std::move(rs_reader));
+        // wqt add srt
+        {
+            VLOG_CRITICAL << "wqt TupleReader::capture_rs_readers version: " << version.to_string()
+                          << " tablet_path: " << it->second->tablet_path() 
+                          << " row_set dir: " << it->second->rowset_dir(); 
+        }
+        // wqt add end
     }
     return Status::OK();
 }

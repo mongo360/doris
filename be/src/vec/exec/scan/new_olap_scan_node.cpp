@@ -197,6 +197,15 @@ Status NewOlapScanNode::_build_key_ranges_and_filters() {
         // 1. construct scan key except last olap engine short key
         _scan_keys.set_is_convertible(limit() == -1);
 
+        // wqt add start
+        SortType sort_type(SortType::LEXICAL);
+        if(!_scan_ranges.empty()) {
+            TabletSharedPtr tablet =
+                StorageEngine::instance()->tablet_manager()->get_tablet(_scan_ranges[0]->tablet_id, true, nullptr);
+            sort_type = tablet->tablet_schema()->sort_type();
+        }
+        if(sort_type != SortType::ZORDER) {
+        // wqt add end
         // we use `exact_range` to identify a key range is an exact range or not when we convert
         // it to `_scan_keys`. If `exact_range` is true, we can just discard it from `_olap_filters`.
         bool exact_range = true;
@@ -228,11 +237,21 @@ Status NewOlapScanNode::_build_key_ranges_and_filters() {
                             RETURN_IF_ERROR(_scan_keys.extend_scan_key(
                                     temp_range, _max_scan_key_num, &exact_range, &eos));
                         }
+                        // wqt add srt
+                        {
+                            VLOG_CRITICAL << "wqt NewOlapScanNode::_build_key_ranges_and_filters: "
+                                          << range.get_fixed_value_size()
+                                          << " _scan_keys: " << _scan_keys.debug_string();
+                        }
+                        // wqt add end
                         return Status::OK();
                     },
                     iter->second));
         }
         _eos |= eos;
+        // wqt add start
+        }
+        // wqt add end
 
         for (auto& iter : _colname_to_value_range) {
             std::vector<TCondition> filters;
@@ -357,6 +376,12 @@ Status NewOlapScanNode::_init_scanners(std::list<VScanner*>* scanners) {
     }
     int scanners_per_tablet = std::max(1, 64 / (int)_scan_ranges.size());
 
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt NewOlapScanNode::_init_scanners _scan_ranges: " << _scan_ranges.size()
+                      << " cond_ranges: " << cond_ranges.size();
+    }
+    // wqt add end
     std::unordered_set<std::string> disk_set;
     for (auto& scan_range : _scan_ranges) {
         auto tablet_id = scan_range->tablet_id;

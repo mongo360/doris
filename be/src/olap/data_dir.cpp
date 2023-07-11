@@ -373,6 +373,12 @@ Status DataDir::load() {
                                     TabletUid tablet_uid, RowsetId rowset_id,
                                     const std::string& meta_str) -> bool {
         RowsetMetaSharedPtr rowset_meta(new RowsetMeta());
+        // wqt add srt
+        {
+            VLOG_CRITICAL << "wqt DataDir::load rowsetid: " << rowset_id.to_string()
+                          << " meta_str: " << meta_str;
+        }
+        // wqt add end
         bool parsed = rowset_meta->init(meta_str);
         if (!parsed) {
             LOG(WARNING) << "parse rowset meta string failed for rowset_id:" << rowset_id;

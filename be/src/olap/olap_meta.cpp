@@ -170,7 +170,18 @@ Status OlapMeta::iterate(const int column_family_index, const std::string& prefi
         LOG(WARNING) << "rocksdb seek failed. reason:" << status.ToString();
         return Status::Error<META_ITERATOR_ERROR>();
     }
+    // wqt add srt
+    int ilog = 0;
+    // wqt add end
     for (; it->Valid(); it->Next()) {
+        // wqt add srt
+        {
+            VLOG_CRITICAL << "wqt OlapMeta::iterate prefix: " << prefix 
+                          << " ilog: " << ilog
+                          << " it->key: " << it->key().ToString();
+            ilog++;
+        }
+        // wqt add end
         if (prefix != "") {
             if (!it->key().starts_with(prefix)) {
                 return Status::OK();

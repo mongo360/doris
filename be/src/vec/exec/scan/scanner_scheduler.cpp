@@ -197,6 +197,14 @@ void ScannerScheduler::_scanner_scan(ScannerScheduler* scheduler, ScannerContext
     Thread::set_self_name("_scanner_scan");
     scanner->update_wait_worker_timer();
     scanner->start_scan_cpu_timer();
+    // wqt add srt
+    MonotonicStopWatch vlog_mon_watch;
+    ThreadCpuStopWatch vlog_cpu_watch;
+    uint64_t vlog_mon_open_time(0);
+    uint64_t vlog_cpu_open_time(0);
+    vlog_mon_watch.start();
+    vlog_cpu_watch.start();
+    // wqt add end
     Status status = Status::OK();
     bool eos = false;
     RuntimeState* state = ctx->state();
@@ -208,6 +216,10 @@ void ScannerScheduler::_scanner_scan(ScannerScheduler* scheduler, ScannerContext
             eos = true;
         }
         scanner->set_opened();
+        // wqt add srt
+        vlog_mon_open_time = vlog_mon_watch.elapsed_time();
+        vlog_cpu_open_time = vlog_cpu_watch.elapsed_time();
+        // wqt add end
     }
 
     scanner->try_append_late_arrival_runtime_filter();
@@ -293,6 +305,11 @@ void ScannerScheduler::_scanner_scan(ScannerScheduler* scheduler, ScannerContext
         ctx->append_blocks_to_queue(blocks);
     }
 
+    // wqt add srt
+    VLOG_CRITICAL << "wqt ScannerScheduler::_scanner_scan point:" << static_cast<const void *>(scanner) 
+                  << " open_time:" << vlog_mon_open_time << ":" << vlog_cpu_open_time
+                  << " once_time:" << vlog_mon_watch.elapsed_time() << ":" << vlog_cpu_watch.elapsed_time();
+    // wqt add end
     scanner->update_scan_cpu_timer();
     if (eos || should_stop) {
         scanner->mark_to_need_to_close();

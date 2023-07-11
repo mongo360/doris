@@ -759,7 +759,18 @@ Status TabletManager::load_tablet_from_meta(DataDir* data_dir, TTabletId tablet_
         return Status::Error<HEADER_PB_PARSE_FAILED>();
     }
     tablet_meta->init_rs_metas_fs(data_dir->fs());
-
+    // wqt add srt
+    {        
+        auto rs_metas = tablet_meta->all_rs_metas();
+        int log_i(0);
+        for(auto& re_meta : rs_metas) {
+            std::string rsmeta_json_string;
+            re_meta->json_rowset_meta(&rsmeta_json_string);
+            VLOG_CRITICAL << "wqt TabletManager::load_tablet_from_meta " << log_i++
+                          << " rs_meta: " << rsmeta_json_string;
+        }
+    }
+    // wqt add end
     // check if tablet meta is valid
     if (tablet_meta->tablet_id() != tablet_id || tablet_meta->schema_hash() != schema_hash) {
         LOG(WARNING) << "fail to load tablet because meet invalid tablet meta. "

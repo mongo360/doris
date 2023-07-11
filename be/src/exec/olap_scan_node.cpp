@@ -1676,6 +1676,14 @@ void OlapScanNode::scanner_thread(OlapScanner* scanner) {
         LOG(INFO) << "Scan thread cancelled, cause query done, scan thread started to exit";
         return;
     }
+    // wqt add srt
+    MonotonicStopWatch vlog_mon_watch;
+    ThreadCpuStopWatch vlog_cpu_watch;
+    uint64_t vlog_mon_open_time(0);
+    uint64_t vlog_cpu_open_time(0);
+    vlog_mon_watch.start();
+    vlog_cpu_watch.start();
+    // wqt add end
     int64_t wait_time = scanner->update_wait_worker_timer();
     // Do not use ScopedTimer. There is no guarantee that, the counter
     // (_scan_cpu_timer, the class member) is not destroyed after `_running_thread==0`.
@@ -1693,6 +1701,10 @@ void OlapScanNode::scanner_thread(OlapScanner* scanner) {
             eos = true;
         }
         scanner->set_opened();
+        // wqt add srt
+        vlog_mon_open_time = vlog_mon_watch.elapsed_time();
+        vlog_cpu_open_time = vlog_cpu_watch.elapsed_time();
+        // wqt add end
     }
 
     std::vector<ExprContext*> contexts;
@@ -1816,6 +1828,11 @@ void OlapScanNode::scanner_thread(OlapScanner* scanner) {
         }
     }
 
+    // wqt add srt
+    VLOG_CRITICAL << "wqt OlapScanNode::scanner_thread point:" << static_cast<const void *>(scanner) 
+                  << " open_time:" << vlog_mon_open_time << ":" << vlog_cpu_open_time
+                  << " once_time:" << vlog_mon_watch.elapsed_time() << ":" << vlog_cpu_watch.elapsed_time();
+    // wqt add end
     _scan_cpu_timer->update(cpu_watch.elapsed_time());
     _scanner_wait_worker_timer->update(wait_time);
 

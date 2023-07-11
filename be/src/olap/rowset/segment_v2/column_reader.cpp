@@ -34,6 +34,10 @@
 #include "vec/core/types.h"
 #include "vec/runtime/vdatetime_value.h" //for VecDateTime
 
+// wqt add srt
+#include "json2pb/pb_to_json.h"
+// wqt add end
+
 namespace doris {
 namespace segment_v2 {
 
@@ -133,6 +137,16 @@ Status ColumnReader::init() {
         return Status::Corruption("Bad file {}: missing ordinal index for column {}",
                                   _file_reader->path().native(), _meta.column_id());
     }
+    // wqt add srt
+    {
+        json2pb::Pb2JsonOptions json_options;
+        json_options.pretty_json = true;
+        json_options.bytes_to_base64 = true;
+        std::string col_meta_json;
+        json2pb::ProtoMessageToJson(_meta, &col_meta_json);
+        VLOG_CRITICAL << "wqt ColumnReader::init meta info: " << col_meta_json;
+    }
+    // wqt add end
     return Status::OK();
 }
 

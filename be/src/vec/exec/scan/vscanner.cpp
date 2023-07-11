@@ -60,6 +60,9 @@ Status VScanner::get_block(RuntimeState* state, Block* block, bool* eof) {
                     break;
                 }
                 _num_rows_read += block->rows();
+                // wqt add srt
+                { VLOG_CRITICAL << "wqt VScanner::get_block rows:" << block->rows(); }
+                // wqt add end
             }
 
             // 2. Filter the output block finally.
@@ -68,6 +71,9 @@ Status VScanner::get_block(RuntimeState* state, Block* block, bool* eof) {
                 RETURN_IF_ERROR(_filter_output_block(block));
                 // record rows return (after filter) for _limit check
                 _num_rows_return += block->rows();
+                // wqt add srt
+                { VLOG_CRITICAL << "wqt VScanner::get_block return_rows:" << block->rows(); }
+                // wqt add end
             }
         } while (!state->is_cancelled() && block->rows() == 0 && !(*eof) &&
                  raw_rows_read() < raw_rows_threshold);
