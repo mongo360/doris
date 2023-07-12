@@ -105,7 +105,7 @@ suite("test_current_timestamp") {
 
     // test json stream load 2
     // if we set column param but the column do not exist in json file
-    // stream load json file will set it to NULL, just like dt_1
+    // stream load json file will set it to default value, just like dt_1
     streamLoad {
         table "${tableName2}"
 
@@ -117,6 +117,9 @@ suite("test_current_timestamp") {
         file 'test_current_timestamp_streamload.json'
         time 10000 // limit inflight 10s
     }
-    qt_stream_load_json5 """ select id, name, dt_1  from ${tableName2} order by id; """
+
+    sql "sync"
+
+    qt_stream_load_json5 """ select id, name from ${tableName2} where dt_1 is not NULL order by id; """
     qt_stream_load_json6 """ select count(*) from ${tableName2} where dt_2 is not NULL; """
  }

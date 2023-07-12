@@ -44,7 +44,8 @@ public:
                   const TFileRangeDesc& range, const std::vector<SlotDescriptor*>& file_slot_descs);
     ~NewJsonReader() override = default;
 
-    Status init_reader();
+    Status init_reader(const std::unordered_map<std::string, vectorized::VExprContext*>&
+                               col_default_value_ctx);
     Status get_next_block(Block* block, size_t* read_rows, bool* eof) override;
     Status get_columns(std::unordered_map<std::string, TypeDescriptor>* name_to_type,
                        std::unordered_set<std::string>* missing_cols) override;
@@ -96,6 +97,15 @@ private:
     Status (NewJsonReader::*_vhandle_json_callback)(
             std::vector<vectorized::MutableColumnPtr>& columns,
             const std::vector<SlotDescriptor*>& slot_descs, bool* is_empty_row, bool* eof);
+
+    Status _get_column_default_value(
+            const std::vector<SlotDescriptor*>& slot_descs,
+            const std::unordered_map<std::string, vectorized::VExprContext*>&
+                    col_default_value_ctx);
+
+    Status _fill_missing_column(rapidjson::Value& objectValue, SlotDescriptor* slot_desc, 
+                                vectorized::IColumn* column_ptr, bool* valid);
+
     RuntimeState* _state;
     RuntimeProfile* _profile;
     ScannerCounter* _counter;
@@ -148,6 +158,9 @@ private:
     RuntimeProfile::Counter* _bytes_read_counter;
     RuntimeProfile::Counter* _read_timer;
     RuntimeProfile::Counter* _file_read_timer;
+
+    // column to default value string map
+    std::unordered_map<std::string, std::string> _col_default_value_map;
 };
 } // namespace vectorized
 } // namespace doris

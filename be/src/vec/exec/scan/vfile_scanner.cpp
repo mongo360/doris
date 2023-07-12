@@ -521,7 +521,9 @@ Status VFileScanner::_get_next_reader() {
         case TFileFormatType::FORMAT_JSON: {
             _cur_reader.reset(new NewJsonReader(_state, _profile, &_counter, _params, range,
                                                 _file_slot_descs, &_scanner_eof));
-            init_status = ((NewJsonReader*)(_cur_reader.get()))->init_reader();
+            init_status =
+                    ((NewJsonReader*)(_cur_reader.get()))->init_reader(_col_default_value_ctx);
+
             break;
         }
         default:
