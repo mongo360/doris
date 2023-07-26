@@ -195,6 +195,16 @@ Status BlockReader::_direct_next_block(Block* block, MemPool* mem_pool, ObjectPo
     if (UNLIKELY(!res.ok() && !res.is<END_OF_FILE>())) {
         return res;
     }
+    // wqt add srt
+    {
+        size_t row_num = block->rows();
+        size_t col_num = block->columns();
+        for(int i = 0; i < row_num; ++i) {
+            std::string row_line = block->dump_one_line(i, col_num);
+            VLOG_CRITICAL << "wqt BlockReader::_direct_next_block "<< i << " [" << row_line << "]";
+        }
+    }
+    // wqt add end
     *eof = res.is<END_OF_FILE>();
     _eof = *eof;
     if (UNLIKELY(_reader_context.record_rowids)) {
@@ -226,7 +236,10 @@ Status BlockReader::_agg_key_next_block(Block* block, MemPool* mem_pool, ObjectP
     _insert_data_normal(target_columns);
     target_block_row++;
     _append_agg_data(target_columns);
-
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block start";
+    }
     while (true) {
         auto res = _vcollect_iter.next(&_next_row);
         if (UNLIKELY(res.is<END_OF_FILE>())) {
@@ -234,12 +247,25 @@ Status BlockReader::_agg_key_next_block(Block* block, MemPool* mem_pool, ObjectP
             *eof = true;
             break;
         }
+        // wqt add srt
+        {
+            size_t row_num = _next_row.block->rows();
+            size_t col_num = _next_row.block->columns();
+            for(int i = 0; i < row_num; ++i) {
+                std::string row_line = _next_row.block->dump_one_line(i, col_num);
+                VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block "<< i << " [" << row_line << "]";
+            }
+        }
+        // wqt add end
         if (UNLIKELY(!res.ok())) {
             LOG(WARNING) << "next failed: " << res;
             return res;
         }
 
         if (!_get_next_row_same()) {
+            // wqt add srt
+            { VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block !_get_next_row_same"; } 
+            // wqt add end
             if (target_block_row == _batch_size) {
                 break;
             }
@@ -252,6 +278,10 @@ Status BlockReader::_agg_key_next_block(Block* block, MemPool* mem_pool, ObjectP
             merged_row++;
         }
 
+        // wqt add srt
+        { VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block start _append_agg_data target_block_row:"
+                        << target_block_row << "merged_row:" << merged_row; } 
+        // wqt add end
         _append_agg_data(target_columns);
     }
 

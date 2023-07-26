@@ -234,6 +234,11 @@ Status Segment::_create_column_readers() {
         _column_id_to_footer_ordinal.emplace(column_pb.unique_id(), ordinal);
     }
 
+    // wqt add srt
+    {
+        VLOG_CRITICAL << "wqt Segment::_create_column_readers _tablet_schema::num_columns: " << _tablet_schema->num_columns();
+    }
+    // wqt add end
     for (uint32_t ordinal = 0; ordinal < _tablet_schema->num_columns(); ++ordinal) {
         auto& column = _tablet_schema->column(ordinal);
         auto iter = _column_id_to_footer_ordinal.find(column.unique_id());

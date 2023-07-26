@@ -206,6 +206,9 @@ VCollectIterator::Level0Iterator::Level0Iterator(RowsetReaderSharedPtr rs_reader
 }
 
 Status VCollectIterator::Level0Iterator::init(bool get_data_by_ref) {
+    // wqt add srt
+    { VLOG_CRITICAL << "wqt Level0Iterator::init support_return_data_by_ref: " << _rs_reader->support_return_data_by_ref(); }
+    // wqt add end
     _get_data_by_ref = get_data_by_ref && _rs_reader->support_return_data_by_ref() &&
                        config::enable_storage_vectorization;
     if (!_get_data_by_ref) {
