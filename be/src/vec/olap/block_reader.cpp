@@ -151,6 +151,20 @@ Status BlockReader::init(const ReaderParams& read_params) {
             }
         }
     }
+    // wqt add srt
+    {
+        std::string normal_idx;
+        for (auto i : _normal_columns_idx)
+            normal_idx += std::to_string(i) + ",";
+        std::string agg_idx;
+        for (auto i : _agg_columns_idx)
+            agg_idx += std::to_string(i) + ",";
+        VLOG_CRITICAL << "wqt BlockReader::init origin_return_columns:" << read_params.origin_return_columns->size()
+                      << " return_columns:" << read_params.return_columns.size()
+                      << " normal_idx:" << normal_idx
+                      << " agg_idx:" << agg_idx;
+    }
+    // wqt add end
 
     std::vector<RowsetReaderSharedPtr> rs_readers;
     auto status = _init_collect_iter(read_params, &rs_readers);
@@ -233,13 +247,24 @@ Status BlockReader::_agg_key_next_block(Block* block, MemPool* mem_pool, ObjectP
     auto merged_row = 0;
     auto target_columns = block->mutate_columns();
 
-    _insert_data_normal(target_columns);
-    target_block_row++;
-    _append_agg_data(target_columns);
     // wqt add srt
     {
         VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block start";
+        
+        size_t row_num = _next_row.block->rows();
+        size_t col_num = _next_row.block->columns();
+
+        VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block pre _next_row "<< _next_row.row_pos << "-" << _next_row.is_same;
+        for(int i = 0; i < row_num; ++i) {
+            std::string row_line = _next_row.block->dump_one_line(i, col_num);
+            VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block "<< i << " [" << row_line << "]";
+        }
     }
+
+    _insert_data_normal(target_columns);
+    target_block_row++;
+    _append_agg_data(target_columns);
+
     while (true) {
         auto res = _vcollect_iter.next(&_next_row);
         if (UNLIKELY(res.is<END_OF_FILE>())) {
@@ -251,6 +276,8 @@ Status BlockReader::_agg_key_next_block(Block* block, MemPool* mem_pool, ObjectP
         {
             size_t row_num = _next_row.block->rows();
             size_t col_num = _next_row.block->columns();
+
+            VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block _next_row "<< _next_row.row_pos << "-" << _next_row.is_same;
             for(int i = 0; i < row_num; ++i) {
                 std::string row_line = _next_row.block->dump_one_line(i, col_num);
                 VLOG_CRITICAL << "wqt BlockReader::_agg_key_next_block "<< i << " [" << row_line << "]";
