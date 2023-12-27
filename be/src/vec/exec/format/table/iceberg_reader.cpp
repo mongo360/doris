@@ -28,6 +28,8 @@
 #include <string.h>
 #include <thrift/protocol/TDebugProtocol.h>
 
+#include <thrift/protocol/TDebugProtocol.h>
+
 #include <algorithm>
 #include <boost/iterator/iterator_facade.hpp>
 #include <functional>
@@ -722,6 +724,57 @@ void IcebergTableReader::_gen_new_colname_to_value_range() {
             _new_colname_to_value_range.emplace(iter->second, it->second);
         }
     }
+}
+
+VExpr* IcebergTableReader::_equality_vconjunct_filter(const VExpr* expr, const std::vector<std::string>& equality_columns) {
+    if (nullptr == expr)
+        return nullptr;
+    VExpr* new_expr = nullptr;
+    // LITERAL
+    if (TExprNodeType::BOOL_LITERAL == expr->node_type() ||
+        TExprNodeType::DATE_LITERAL == expr->node_type() ||
+        TExprNodeType::FLOAT_LITERAL == expr->node_type() ||
+        TExprNodeType::INT_LITERAL == expr->node_type() ||
+        TExprNodeType::DECIMAL_LITERAL == expr->node_type() ||
+        TExprNodeType::NULL_LITERAL == expr->node_type() ||
+        TExprNodeType::STRING_LITERAL == expr->node_type()) {
+        new_expr = expr->clone(_state->obj_pool());
+    }
+    else if (expr->is_slot_ref()) {
+        if (std::find(equality_columns.begin(), equality_columns.end(), expr->expr_name()) 
+                != equality_columns.end()) {
+            new_expr = expr->clone(_state->obj_pool());
+        }
+    }
+    else if (TExprNodeType::BINARY_PRED == expr->node_type()) {
+        std::vector<VExpr*> children;
+        for (auto& it : expr->children()) {
+            VExpr* child_expr = _equality_vconjunct_filter(it, equality_columns);
+            if(nullptr == child_expr) {
+                return nullptr;
+            }
+            children.push_back(child_expr);
+        }
+        new_expr = expr->clone(_state->obj_pool());
+        new_expr->set_children(children);
+    }
+    else if (TExprNodeType::COMPOUND_PRED == expr->node_type()) {
+        std::vector<VExpr*> children;
+        for (auto& it : expr->children()) {
+            VExpr* child_expr = _equality_vconjunct_filter(it, equality_columns);
+            if(nullptr != child_expr) {
+                children.push_back(child_expr);
+            }
+        }
+        if(children.size() == expr->children().size()) {
+            new_expr = expr->clone(_state->obj_pool());
+            new_expr->set_children(children);
+        }
+        else if(children.size() == 1) {
+            return children[0];
+        }
+    }
+    return new_expr;
 }
 
 } // namespace doris::vectorized

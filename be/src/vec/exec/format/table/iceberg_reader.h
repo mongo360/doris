@@ -130,6 +130,8 @@ private:
     void _gen_new_colname_to_value_range();
     std::string _delet_file_cache_key(const std::string& path) { return "delete_" + path; }
 
+    VExpr* _equality_vconjunct_filter(const VExpr* expr, const std::vector<std::string>& equality_columns);
+
     RuntimeProfile* _profile;
     RuntimeState* _state;
     const TFileScanRangeParams& _params;
