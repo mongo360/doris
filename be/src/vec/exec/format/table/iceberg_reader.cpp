@@ -36,6 +36,7 @@
 #include <memory>
 #include <mutex>
 
+#include "common/object_pool.h"
 #include "common/compiler_util.h" // IWYU pragma: keep
 #include "common/object_pool.h"
 #include "common/status.h"
@@ -55,6 +56,7 @@
 #include "vec/core/column_with_type_and_name.h"
 #include "vec/data_types/data_type.h"
 #include "vec/data_types/data_type_factory.hpp"
+#include "vec/exprs/vexpr.h"
 #include "vec/exec/format/format_common.h"
 #include "vec/exec/format/generic_reader.h"
 #include "vec/exec/format/parquet/parquet_common.h"
@@ -421,7 +423,7 @@ Status IcebergTableReader::_position_delete(
 }
 
 Status IcebergTableReader::_equality_delete(
-        const std::vector<TIcebergDeleteFileDesc>& delete_files) {
+    const std::vector<TIcebergDeleteFileDesc>& delete_files) {
     std::vector<Block> block_list;
     bool init_schema = false;
     std::vector<std::string> delete_file_col_names;
@@ -730,6 +732,7 @@ VExpr* IcebergTableReader::_equality_vconjunct_filter(const VExpr* expr, const s
     if (nullptr == expr)
         return nullptr;
     VExpr* new_expr = nullptr;
+    /*
     // LITERAL
     if (TExprNodeType::BOOL_LITERAL == expr->node_type() ||
         TExprNodeType::DATE_LITERAL == expr->node_type() ||
@@ -774,6 +777,7 @@ VExpr* IcebergTableReader::_equality_vconjunct_filter(const VExpr* expr, const s
             return children[0];
         }
     }
+    */
     return new_expr;
 }
 

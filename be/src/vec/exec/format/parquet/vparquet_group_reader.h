@@ -34,6 +34,7 @@
 #include "vec/exec/format/parquet/parquet_common.h"
 #include "vec/exprs/vexpr_fwd.h"
 #include "vparquet_column_reader.h"
+#include "vec/core/block.h"
 
 namespace cctz {
 class time_zone;
