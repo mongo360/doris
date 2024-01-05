@@ -30,6 +30,7 @@
 #include <stdlib.h>
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
+#include <cstdio>
 #include <ostream>
 #include <typeinfo>
 #include <utility>
@@ -123,7 +124,16 @@ Status PlanFragmentExecutor::prepare(const TExecPlanFragmentParams& request) {
             .tag("instance_id", print_id(params.fragment_instance_id))
             .tag("backend_num", request.backend_num)
             .tag("pthread_id", (uintptr_t)pthread_self());
-    // VLOG_CRITICAL << "request:\n" << apache::thrift::ThriftDebugString(request);
+    // wqt add start
+    std::string planfragmentdebugstr = apache::thrift::ThriftDebugString(request);
+    VLOG_CRITICAL << "request:\n" << planfragmentdebugstr;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    FILE* flog_handle = fopen(
+            fmt::format("log/request_{}_{}.log", params.query_id.lo, tv.tv_usec).c_str(), "wb");
+    fwrite(planfragmentdebugstr.c_str(), planfragmentdebugstr.length(), 1, flog_handle);
+    fclose(flog_handle);
+    // wqt add end
 
     const TQueryGlobals& query_globals = _query_ctx->query_globals;
     _runtime_state = RuntimeState::create_unique(params, request.query_options, query_globals,

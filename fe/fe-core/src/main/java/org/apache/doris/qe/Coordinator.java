@@ -758,6 +758,12 @@ public class Coordinator implements CoordInterface {
             for (PlanFragment fragment : fragments) {
                 FragmentExecParams params = fragmentExecParamsMap.get(fragment.getFragmentId());
 
+                // wqt add start
+                StringBuilder sb = new StringBuilder();
+                params.appendTo(sb);
+                LOG.info("wqt fragment: {}", sb.toString());
+                // wqt add end
+
                 // 1. set up exec states
                 int instanceNum = params.instanceExecParams.size();
                 Preconditions.checkState(instanceNum > 0);

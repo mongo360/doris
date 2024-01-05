@@ -28,15 +28,12 @@
 #include <string.h>
 #include <thrift/protocol/TDebugProtocol.h>
 
-#include <thrift/protocol/TDebugProtocol.h>
-
 #include <algorithm>
 #include <boost/iterator/iterator_facade.hpp>
 #include <functional>
 #include <memory>
 #include <mutex>
 
-#include "common/object_pool.h"
 #include "common/compiler_util.h" // IWYU pragma: keep
 #include "common/object_pool.h"
 #include "common/status.h"
@@ -56,7 +53,6 @@
 #include "vec/core/column_with_type_and_name.h"
 #include "vec/data_types/data_type.h"
 #include "vec/data_types/data_type_factory.hpp"
-#include "vec/exprs/vexpr.h"
 #include "vec/exec/format/format_common.h"
 #include "vec/exec/format/generic_reader.h"
 #include "vec/exec/format/parquet/parquet_common.h"
@@ -128,6 +124,12 @@ Status IcebergTableReader::init_reader(
         const std::unordered_map<std::string, int>* colname_to_slot_id,
         const VExprContextSPtrs* not_single_slot_filter_conjuncts,
         const std::unordered_map<int, VExprContextSPtrs>* slot_id_to_filter_conjuncts) {
+    VLOG_NOTICE << "wqt IcebergTableReader::init_reader start";
+    for (auto& kv : col_id_name_map) {
+        VLOG_NOTICE << "wqt IcebergTableReader::init_reader col_id_name_map id: " << kv.first
+                    << ", name: " << kv.second;
+    }
+
     ParquetReader* parquet_reader = static_cast<ParquetReader*>(_file_format_reader.get());
     _vconjunct_ctx = conjuncts;
     _col_id_name_map = col_id_name_map;
@@ -218,6 +220,7 @@ Status IcebergTableReader::get_columns(
 }
 
 Status IcebergTableReader::init_row_filters(const TFileRangeDesc& range) {
+    VLOG_NOTICE << "wqt IcebergTableReader::init_row_filters start";
     // We get the count value by doris's be, so we don't need to read the delete file
     if (_push_down_agg_type == TPushAggOp::type::COUNT && _remaining_push_down_count > 0) {
         return Status::OK();
@@ -423,7 +426,7 @@ Status IcebergTableReader::_position_delete(
 }
 
 Status IcebergTableReader::_equality_delete(
-    const std::vector<TIcebergDeleteFileDesc>& delete_files) {
+        const std::vector<TIcebergDeleteFileDesc>& delete_files) {
     std::vector<Block> block_list;
     bool init_schema = false;
     std::vector<std::string> delete_file_col_names;
@@ -728,9 +731,9 @@ void IcebergTableReader::_gen_new_colname_to_value_range() {
     }
 }
 
-VExpr* IcebergTableReader::_equality_vconjunct_filter(const VExpr* expr, const std::vector<std::string>& equality_columns) {
-    if (nullptr == expr)
-        return nullptr;
+VExpr* IcebergTableReader::_equality_vconjunct_filter(
+        const VExpr* expr, const std::vector<std::string>& equality_columns) {
+    if (nullptr == expr) return nullptr;
     VExpr* new_expr = nullptr;
     /*
     // LITERAL

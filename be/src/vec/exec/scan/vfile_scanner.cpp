@@ -103,6 +103,13 @@ VFileScanner::VFileScanner(RuntimeState* state, NewFileScanNode* parent, int64_t
     if (state->get_query_ctx() != nullptr &&
         state->get_query_ctx()->file_scan_range_params_map.count(parent->id()) > 0) {
         _params = &(state->get_query_ctx()->file_scan_range_params_map[parent->id()]);
+        // wqt add start
+        {
+            VLOG_NOTICE << fmt::format("wqt VFileScanner lo:{} parent id:{} ",
+                                       _state->fragment_instance_id().lo, parent->id());
+        }
+        // wqt add end
+
     } else {
         CHECK(scan_range.__isset.params);
         _params = &(scan_range.params);
@@ -325,6 +332,14 @@ Status VFileScanner::_get_block_impl(RuntimeState* state, Block* block, bool* eo
         size_t read_rows = 0;
         RETURN_IF_ERROR(_init_src_block(block));
         {
+            // wqt add start
+            {
+                for (const auto& name : block->get_names()) {
+                    VLOG_NOTICE << fmt::format("wqt _get_block_impl lo:{} col:{} ",
+                                               _state->fragment_instance_id().lo, name);
+                }
+            }
+            // wqt add end
             SCOPED_TIMER(_get_block_timer);
 
             // Read next block.
@@ -410,6 +425,19 @@ Status VFileScanner::_init_src_block(Block* block) {
     // _input_tuple_desc will contains: k1, k2, tmp1
     // and some of them are from file, such as k1 and k2, and some of them may not exist in file, such as tmp1
     // _input_tuple_desc also contains columns from path
+
+    // wqt add start
+    {
+        VLOG_NOTICE << fmt::format("wqt _init_src_block lo:{} _input_tuple_desc:{}",
+                                   _state->fragment_instance_id().lo,
+                                   _input_tuple_desc->debug_string());
+        for (const auto& it : _name_to_col_type) {
+            VLOG_NOTICE << fmt::format(
+                    "wqt _init_src_block lo:{} _name_to_col_type key:{} value:{}", it.first,
+                    it.second.debug_string());
+        }
+    }
+    // wqt add end
     for (auto& slot : _input_tuple_desc->slots()) {
         DataTypePtr data_type;
         auto it = _name_to_col_type.find(slot->col_name());
@@ -1070,6 +1098,14 @@ Status VFileScanner::_init_expr_ctxes() {
             }
         }
     }
+    // wqt add start
+    {
+        for (const auto& kv : _col_id_name_map) {
+            VLOG_NOTICE << fmt::format("wqt _init_expr_ctxes lo:{} k:{} - v:{}",
+                                       _state->fragment_instance_id().lo, kv.first, kv.second);
+        }
+    }
+    // wqt add end
 
     // set column name to default value expr map
     for (auto slot_desc : _real_tuple_desc->slots()) {

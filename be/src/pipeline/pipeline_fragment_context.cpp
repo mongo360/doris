@@ -214,6 +214,17 @@ Status PipelineFragmentContext::prepare(const doris::TPipelineFragmentParams& re
     if (_prepared) {
         return Status::InternalError("Already prepared");
     }
+    // wqt add start
+    std::string planfragmentdebugstr = apache::thrift::ThriftDebugString(request);
+    VLOG_CRITICAL << "request:\n" << planfragmentdebugstr;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    FILE* flog_handle = fopen(
+            fmt::format("log/pipe_request_{}_{}.log", request.query_id.lo, tv.tv_usec).c_str(),
+            "wb");
+    fwrite(planfragmentdebugstr.c_str(), planfragmentdebugstr.length(), 1, flog_handle);
+    fclose(flog_handle);
+    // wqt add end
     const auto& local_params = request.local_params[idx];
     _runtime_profile = std::make_unique<RuntimeProfile>("PipelineContext");
     _start_timer = ADD_TIMER(_runtime_profile, "StartTime");
