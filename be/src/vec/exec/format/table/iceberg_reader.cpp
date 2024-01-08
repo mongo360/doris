@@ -129,6 +129,13 @@ Status IcebergTableReader::init_reader(
         VLOG_NOTICE << "wqt IcebergTableReader::init_reader col_id_name_map id: " << kv.first
                     << ", name: " << kv.second;
     }
+    for (auto& kv : *colname_to_slot_id) {
+        VLOG_NOTICE << "wqt IcebergTableReader::init_reader colname_to_slot_id name: " << kv.first
+                    << ", id: " << kv.second;
+    }
+    for (auto& kv : file_col_names) {
+        VLOG_NOTICE << "wqt IcebergTableReader::init_reader file_col_names: " << kv;
+    }
 
     ParquetReader* parquet_reader = static_cast<ParquetReader*>(_file_format_reader.get());
     _vconjunct_ctx = conjuncts;

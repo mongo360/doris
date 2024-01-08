@@ -428,6 +428,7 @@ Status ParquetReader::set_fill_columns(
         for (auto& col_name : _equality_delete_ids.get_names()) {
             auto iter = predicate_columns.find(col_name);
             if (iter == predicate_columns.end()) {
+                // wqt todo: column_id、slot_id need add
                 predicate_columns.emplace(col_name, std::make_pair(_file_col_to_col_id[col_name],
                                                                    _file_col_to_slot_id[col_name]));
                 if (_file_col_to_col_id[col_name] == 0) {

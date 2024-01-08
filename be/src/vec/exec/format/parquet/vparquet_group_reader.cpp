@@ -471,9 +471,11 @@ Status RowGroupReader::_do_lazy_read(Block* block, size_t batch_size, size_t* re
         RETURN_IF_ERROR(_build_equality_delete_filter(block, pre_read_rows));
 
         // generate filter vector
-        if (_lazy_read_ctx.resize_first_column 
-            || std::find(_lazy_read_ctx.predicate_columns.first.begin(), _lazy_read_ctx.predicate_columns.first.end(), block->get_by_position(0).name)
-                != _lazy_read_ctx.predicate_columns.first.end()) {
+        if (_lazy_read_ctx.resize_first_column ||
+            std::find(_lazy_read_ctx.predicate_columns.first.begin(),
+                      _lazy_read_ctx.predicate_columns.first.end(),
+                      block->get_by_position(0).name) !=
+                    _lazy_read_ctx.predicate_columns.first.end()) {
             // VExprContext.execute has an optimization, the filtering is executed when block->rows() > 0
             // The following process may be tricky and time-consuming, but we have no other way.
             block->get_by_position(0).column->assume_mutable()->resize(pre_read_rows);
@@ -495,9 +497,11 @@ Status RowGroupReader::_do_lazy_read(Block* block, size_t batch_size, size_t* re
         RETURN_IF_ERROR(VExprContext::execute_conjuncts(filter_contexts, &filters, block,
                                                         &result_filter, &can_filter_all));
 
-        if (_lazy_read_ctx.resize_first_column 
-            || std::find(_lazy_read_ctx.predicate_columns.first.begin(), _lazy_read_ctx.predicate_columns.first.end(), block->get_by_position(0).name)
-                != _lazy_read_ctx.predicate_columns.first.end()) {
+        if (_lazy_read_ctx.resize_first_column ||
+            std::find(_lazy_read_ctx.predicate_columns.first.begin(),
+                      _lazy_read_ctx.predicate_columns.first.end(),
+                      block->get_by_position(0).name) !=
+                    _lazy_read_ctx.predicate_columns.first.end()) {
             // We have to clean the first column to insert right data.
             block->get_by_position(0).column->assume_mutable()->clear();
         }
@@ -784,7 +788,8 @@ Status RowGroupReader::_build_equality_delete_filter(Block* block, const size_t 
         _equ_delete_filter_ptr.reset(nullptr);
         return Status::OK();
     }
-    VLOG_NOTICE << "RowGroupReader::_build_equality_delete_filter _equality_delete_block: " << _equality_delete_block.dump_data();
+    VLOG_NOTICE << "RowGroupReader::_build_equality_delete_filter _equality_delete_block: "
+                << _equality_delete_block.dump_data();
 
     _equ_delete_filter_ptr.reset(new IColumn::Filter(read_rows, 1));
     auto* __restrict _equ_delete_filter_data = _equ_delete_filter_ptr->data();
