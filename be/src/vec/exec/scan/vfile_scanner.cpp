@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/scan/vfile_scanner.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Metrics_types.h>
@@ -66,6 +64,7 @@
 #include "vec/exec/format/table/transactional_hive_reader.h"
 #include "vec/exec/format/wal/wal_reader.h"
 #include "vec/exec/scan/new_file_scan_node.h"
+#include "vec/exec/scan/vfile_scanner.h"
 #include "vec/exec/scan/vscan_node.h"
 #include "vec/exprs/vexpr.h"
 #include "vec/exprs/vexpr_context.h"
@@ -107,6 +106,10 @@ VFileScanner::VFileScanner(RuntimeState* state, NewFileScanNode* parent, int64_t
         {
             VLOG_NOTICE << fmt::format("wqt VFileScanner lo:{} parent id:{} ",
                                        _state->fragment_instance_id().lo, parent->id());
+            for (auto& range : _ranges) {
+                VLOG_NOTICE << "wqt VFileScanner::VFileScanner read file: " << range.path
+                            << ", offset: " << range.start_offset;
+            }
         }
         // wqt add end
 

@@ -18,8 +18,6 @@
 // https://github.com/cloudera/Impala/blob/v0.7refresh/be/src/runtime/plan-fragment-executor.cc
 // and modified by Doris
 
-#include "runtime/plan_fragment_executor.h"
-
 #include <fmt/core.h>
 #include <gen_cpp/FrontendService_types.h>
 #include <gen_cpp/Metrics_types.h>
@@ -28,6 +26,8 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "runtime/plan_fragment_executor.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
 #include <cstdio>
@@ -125,6 +125,7 @@ Status PlanFragmentExecutor::prepare(const TExecPlanFragmentParams& request) {
             .tag("backend_num", request.backend_num)
             .tag("pthread_id", (uintptr_t)pthread_self());
     // wqt add start
+    /*
     std::string planfragmentdebugstr = apache::thrift::ThriftDebugString(request);
     VLOG_CRITICAL << "request:\n" << planfragmentdebugstr;
     struct timeval tv;
@@ -133,6 +134,7 @@ Status PlanFragmentExecutor::prepare(const TExecPlanFragmentParams& request) {
             fmt::format("log/request_{}_{}.log", params.query_id.lo, tv.tv_usec).c_str(), "wb");
     fwrite(planfragmentdebugstr.c_str(), planfragmentdebugstr.length(), 1, flog_handle);
     fclose(flog_handle);
+    */
     // wqt add end
 
     const TQueryGlobals& query_globals = _query_ctx->query_globals;

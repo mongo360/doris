@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "iceberg_reader.h"
-
 #include <ctype.h>
 #include <gen_cpp/Metrics_types.h>
 #include <gen_cpp/PlanNodes_types.h>
@@ -37,6 +35,7 @@
 #include "common/compiler_util.h" // IWYU pragma: keep
 #include "common/object_pool.h"
 #include "common/status.h"
+#include "iceberg_reader.h"
 #include "olap/olap_common.h"
 #include "runtime/define_primitive_type.h"
 #include "runtime/primitive_type.h"
@@ -135,6 +134,10 @@ Status IcebergTableReader::init_reader(
     }
     for (auto& kv : file_col_names) {
         VLOG_NOTICE << "wqt IcebergTableReader::init_reader file_col_names: " << kv;
+    }
+    for (auto& kv : conjuncts) {
+        VLOG_NOTICE << "wqt IcebergTableReader::init_reader vconjunct_ctx: "
+                    << kv->root()->debug_string();
     }
 
     ParquetReader* parquet_reader = static_cast<ParquetReader*>(_file_format_reader.get());

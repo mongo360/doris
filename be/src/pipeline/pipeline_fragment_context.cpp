@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline_fragment_context.h"
-
 #include <gen_cpp/DataSinks_types.h>
 #include <gen_cpp/PaloInternalService_types.h>
 #include <gen_cpp/PlanNodes_types.h>
@@ -215,6 +213,7 @@ Status PipelineFragmentContext::prepare(const doris::TPipelineFragmentParams& re
         return Status::InternalError("Already prepared");
     }
     // wqt add start
+    /*
     std::string planfragmentdebugstr = apache::thrift::ThriftDebugString(request);
     VLOG_CRITICAL << "request:\n" << planfragmentdebugstr;
     struct timeval tv;
@@ -224,6 +223,7 @@ Status PipelineFragmentContext::prepare(const doris::TPipelineFragmentParams& re
             "wb");
     fwrite(planfragmentdebugstr.c_str(), planfragmentdebugstr.length(), 1, flog_handle);
     fclose(flog_handle);
+    */
     // wqt add end
     const auto& local_params = request.local_params[idx];
     _runtime_profile = std::make_unique<RuntimeProfile>("PipelineContext");
