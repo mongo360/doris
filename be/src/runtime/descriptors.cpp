@@ -18,8 +18,6 @@
 // https://github.com/apache/impala/blob/branch-2.9.0/be/src/runtime/descriptors.cc
 // and modified by Doris
 
-#include "runtime/descriptors.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Descriptors_types.h>
 #include <gen_cpp/Types_types.h>
@@ -31,6 +29,7 @@
 #include <memory>
 
 #include "common/object_pool.h"
+#include "runtime/descriptors.h"
 #include "runtime/primitive_type.h"
 #include "util/string_util.h"
 #include "vec/aggregate_functions/aggregate_function.h"
@@ -124,7 +123,9 @@ vectorized::DataTypePtr SlotDescriptor::get_data_type_ptr() const {
 std::string SlotDescriptor::debug_string() const {
     std::stringstream out;
     out << "Slot(id=" << _id << " type=" << _type << " col=" << _col_pos
-        << ", colname=" << _col_name << ", nullable=" << is_nullable() << ")";
+        << ", colname=" << _col_name << ", nullable=" << is_nullable()
+        << ",_col_unique_id=" << _col_unique_id << ",_is_materialized=" << _is_materialized
+        << ",_need_materialize=" << _need_materialize << ")";
     return out.str();
 }
 

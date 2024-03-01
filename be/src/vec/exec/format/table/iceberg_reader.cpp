@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "iceberg_reader.h"
-
 #include <ctype.h>
 #include <gen_cpp/Metrics_types.h>
 #include <gen_cpp/PlanNodes_types.h>
@@ -37,6 +35,7 @@
 #include "common/compiler_util.h" // IWYU pragma: keep
 #include "common/object_pool.h"
 #include "common/status.h"
+#include "iceberg_reader.h"
 #include "olap/olap_common.h"
 #include "runtime/define_primitive_type.h"
 #include "runtime/primitive_type.h"
@@ -124,6 +123,18 @@ Status IcebergTableReader::init_reader(
         const std::unordered_map<std::string, int>* colname_to_slot_id,
         const VExprContextSPtrs* not_single_slot_filter_conjuncts,
         const std::unordered_map<int, VExprContextSPtrs>* slot_id_to_filter_conjuncts) {
+    // wqt add start
+    VLOG_NOTICE << "wqt IcebergTableReader::init_reader tuple_descriptor: "
+                << tuple_descriptor->debug_string();
+    VLOG_NOTICE << "wqt IcebergTableReader::init_reader row_descriptor: "
+                << row_descriptor->debug_string();
+    VLOG_NOTICE << "wqt IcebergTableReader::init_reader conjuncts num: " << conjuncts.size();
+    for (const auto& con : conjuncts) {
+        VLOG_NOTICE << "wqt IcebergTableReader::init_reader conjuncts: "
+                    << con->root()->debug_string();
+    }
+    // wqt add end
+
     ParquetReader* parquet_reader = static_cast<ParquetReader*>(_file_format_reader.get());
     _vconjunct_ctx = conjuncts;
     _col_id_name_map = col_id_name_map;
