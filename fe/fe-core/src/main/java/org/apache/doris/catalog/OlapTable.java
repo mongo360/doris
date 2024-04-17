@@ -488,10 +488,10 @@ public class OlapTable extends Table {
      */
     public List<Long> getMvColumnIndexIds(String columnName) {
         List<Long> ids = Lists.newArrayList();
-        for (MaterializedIndexMeta meta : getVisibleIndexIdToMeta().values()) {
-            Column target = meta.getColumnByDefineName(columnName);
+        for (Map.Entry<Long, MaterializedIndexMeta> entry : getVisibleIndexIdToMeta().entrySet()) {
+            Column target = entry.getValue().getColumnByDefineName(columnName);
             if (target != null) {
-                ids.add(meta.getIndexId() == baseIndexId ? -1 : meta.getIndexId());
+                ids.add(entry.getKey() == baseIndexId ? -1 : entry.getKey());
             }
         }
         return ids;
@@ -568,6 +568,7 @@ public class OlapTable extends Table {
                 baseIndexId = newIdxId;
             }
             indexIdToMeta.put(newIdxId, origIdxIdToMeta.get(entry.getKey()));
+            indexIdToMeta.get(newIdxId).setIndexId(newIdxId);
             indexNameToId.put(entry.getValue(), newIdxId);
         }
 

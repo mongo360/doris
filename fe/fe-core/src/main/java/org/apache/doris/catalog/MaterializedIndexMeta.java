@@ -122,6 +122,11 @@ public class MaterializedIndexMeta implements Writable, GsonPostProcessable {
         return indexId;
     }
 
+    // only use when restore to reset new index id
+    public void setIndexId(long newIndexId) {
+        this.indexId = newIndexId;
+    }
+
     public KeysType getKeysType() {
         return keysType;
     }
