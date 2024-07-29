@@ -78,9 +78,47 @@ excludeDirectories = "nereids_tpcds_shape_sf100_p0," +
 
 customConf1 = "test_custom_conf_value"
 
-s3Endpoint = "cos.ap-hongkong.myqcloud.com"
-s3BucketName = "doris-build-hk-1308700295"
-s3Region = "ap-hongkong"
+// for test csv with header
+enableHdfs=false // set to true if hdfs is ready
+hdfsFs = "hdfs://127.0.0.1:9000"
+hdfsUser = "doris-test"
+hdfsPasswd = ""
+brokerName = "broker_name"
+
+// broker load test config
+enableBrokerLoad=true
+
+// jdbc connector test config
+// To enable jdbc test, you need first start mysql/pg container.
+// See `docker/thirdparties/start-thirdparties-docker.sh`
+enableJdbcTest=false
+mysql_57_port=7111
+pg_14_port=7121
+mariadb_10_port=3326
+// hive catalog test config
+// To enable jdbc test, you need first start hive container.
+// See `docker/thirdparties/start-thirdparties-docker.sh`
+enableHiveTest=false
+hms_port=7141
+hiveServerPort=10000
+
+// kafka test config
+// to enable kafka test, you need firstly to start kafka container
+// See `docker/thirdparties/start-thirdparties-docker.sh`
+enableKafkaTest=true
+kafka_port=19193
+
+// iceberg test config
+iceberg_rest_uri_port=18181
+
+enableEsTest=false
+es_6_port=19200
+es_7_port=29200
+es_8_port=39200
+
+cacheDataPath = "/data/regression/"
+
+s3Source="aliyun"
 
 max_failure_num=50
 
