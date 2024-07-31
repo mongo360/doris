@@ -1128,6 +1128,14 @@ public class OlapTable extends Table {
         return null;
     }
 
+    public void setEnableMowLightDelete(boolean enable) {
+        getOrCreatTableProperty().setEnableMowLightDelete(enable);
+    }
+
+    public boolean getEnableMowLightDelete() {
+        return getOrCreatTableProperty().getEnableMowLightDelete();
+    }
+
     public Boolean hasSequenceCol() {
         return getSequenceCol() != null;
     }
