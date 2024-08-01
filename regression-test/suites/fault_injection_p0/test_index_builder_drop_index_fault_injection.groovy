@@ -49,7 +49,7 @@ suite("test_index_builder_drop_index_fault_injection", "nonConcurrent") {
         assertEquals(show_result[3].Key_name, "index_k5")
 
         try {
-            GetDebugPoint().enableDebugPointForAllBEs("segment_iterator._read_columns_by_index", [indexes_count: 3])
+            GetDebugPoint().enableDebugPointForAllBEs("index_builder.update_inverted_index_info.drop_index", [indexes_count: 3])
             sql "DROP INDEX index_int ON ${indexTbName}"
             wait_for_latest_op_on_table_finish(indexTbName, timeout)
             show_result = sql_return_maparray "show index from ${indexTbName}"
@@ -63,7 +63,7 @@ suite("test_index_builder_drop_index_fault_injection", "nonConcurrent") {
         }
 
         try {
-            GetDebugPoint().enableDebugPointForAllBEs("segment_iterator._read_columns_by_index", [indexes_count: 2])
+            GetDebugPoint().enableDebugPointForAllBEs("index_builder.update_inverted_index_info.drop_index", [indexes_count: 2])
             sql "DROP INDEX index_str_k2 ON ${indexTbName}"
             wait_for_latest_op_on_table_finish(indexTbName, timeout)
             show_result = sql_return_maparray "show index from ${indexTbName}"
@@ -76,7 +76,7 @@ suite("test_index_builder_drop_index_fault_injection", "nonConcurrent") {
         }
 
         try {
-            GetDebugPoint().enableDebugPointForAllBEs("segment_iterator._read_columns_by_index", [indexes_count: 1])
+            GetDebugPoint().enableDebugPointForAllBEs("index_builder.update_inverted_index_info.drop_index", [indexes_count: 1])
             sql "DROP INDEX index_str_k4 ON ${indexTbName}"
             wait_for_latest_op_on_table_finish(indexTbName, timeout)
             show_result = sql_return_maparray "show index from ${indexTbName}"
@@ -88,7 +88,7 @@ suite("test_index_builder_drop_index_fault_injection", "nonConcurrent") {
         }
 
         try {
-            GetDebugPoint().enableDebugPointForAllBEs("segment_iterator._read_columns_by_index", [indexes_count: 0])
+            GetDebugPoint().enableDebugPointForAllBEs("index_builder.update_inverted_index_info.drop_index", [indexes_count: 0])
             sql "DROP INDEX index_k5 ON ${indexTbName}"
             wait_for_latest_op_on_table_finish(indexTbName, timeout)
             show_result = sql_return_maparray "show index from ${indexTbName}"
