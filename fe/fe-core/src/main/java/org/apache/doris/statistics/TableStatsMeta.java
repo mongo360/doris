@@ -122,6 +122,10 @@ public class TableStatsMeta implements Writable {
         colNameToColStatsMeta.remove(colName);
     }
 
+    public void removeAllColumn() {
+        colNameToColStatsMeta.clear();
+    }
+
     public Set<String> analyzeColumns() {
         return colNameToColStatsMeta.keySet();
     }
@@ -166,13 +170,33 @@ public class TableStatsMeta implements Writable {
                 updatedRows.set(0);
                 newPartitionLoaded.set(false);
             }
-            if (tableIf instanceof OlapTable) {
-                PartitionInfo partitionInfo = ((OlapTable) tableIf).getPartitionInfo();
-                if (partitionInfo != null && analyzedJob.colToPartitions.keySet()
-                        .containsAll(partitionInfo.getPartitionColumns().stream()
-                            .map(Column::getName).collect(Collectors.toSet()))) {
-                    newPartitionLoaded.set(false);
-                }
+        }
+    }
+
+    @Override
+    public void gsonPostProcess() throws IOException {
+        if (indexesRowCount == null) {
+            indexesRowCount = new ConcurrentHashMap<>();
+        }
+        if (newPartitionLoaded == null) {
+            newPartitionLoaded = new AtomicBoolean(false);
+        }
+        if (colNameToColStatsMeta == null) {
+            colNameToColStatsMeta = new ConcurrentHashMap<>();
+        }
+    }
+
+    public long getRowCount(long indexId) {
+        return indexesRowCount.getOrDefault(indexId, -1L);
+    }
+
+    private void clearStaleIndexRowCount(OlapTable table) {
+        Iterator<Long> iterator = indexesRowCount.keySet().iterator();
+        List<Long> indexIds = table.getIndexIds();
+        while (iterator.hasNext()) {
+            long key = iterator.next();
+            if (indexIds.contains(key)) {
+                iterator.remove();
             }
         }
     }
