@@ -296,7 +296,7 @@ public class SummaryProfile {
     }
 
     public String getFetchResultConsumeTime() {
-        return RuntimeProfile.printCounter(queryFetchResultConsumeTime, TUnit.TIME_MS)
+        return RuntimeProfile.printCounter(queryFetchResultConsumeTime, TUnit.TIME_MS);
     }
 
     public void freshWriteResultConsumeTime() {
@@ -304,7 +304,7 @@ public class SummaryProfile {
     }
 
     public String getWriteResultConsumeTime() {
-        return RuntimeProfile.printCounter(queryWriteResultConsumeTime, TUnit.TIME_MS)
+        return RuntimeProfile.printCounter(queryWriteResultConsumeTime, TUnit.TIME_MS);
     }
 
     public long getQueryBeginTime() {
