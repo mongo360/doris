@@ -729,6 +729,7 @@ public class Coordinator implements CoordInterface {
                 profileFragmentId += 1;
             } // end for fragments
 
+            LOG.info("wqt {} BeginToSendFragmentsRPC ", DebugUtil.printId(queryId));
             // 4. send and wait fragments rpc
             List<Triple<BackendExecStates, BackendServiceProxy, Future<InternalService.PExecPlanFragmentResult>>>
                     futures = Lists.newArrayList();
