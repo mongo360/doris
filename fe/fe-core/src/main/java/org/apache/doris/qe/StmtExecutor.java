@@ -1557,6 +1557,7 @@ public class StmtExecutor {
             queryScheduleSpan.end();
         }
         profile.getSummaryProfile().setQueryScheduleFinishTime();
+        LOG.info("wqt test 1 StmtExecutor::sendResult after query schedule finish");
         updateProfile(false);
         if (coordBase.getInstanceTotalNum() > 1 && LOG.isDebugEnabled()) {
             try {
@@ -1569,6 +1570,7 @@ public class StmtExecutor {
             }
         }
 
+        LOG.info("wqt test 2 StmtExecutor::sendResult begin fetch result");
         Span fetchResultSpan = context.getTracer().spanBuilder("fetch result").setParent(Context.current()).startSpan();
         try (Scope scope = fetchResultSpan.makeCurrent()) {
             while (true) {
@@ -1610,6 +1612,7 @@ public class StmtExecutor {
                     break;
                 }
             }
+            LOG.info("wqt test 3 StmtExecutor::sendResult cacheAnalyzer start");
             if (cacheAnalyzer != null) {
                 if (cacheResult != null && cacheAnalyzer.getHitRange() == Cache.HitRange.Right) {
                     isSendFields =
@@ -1619,6 +1622,7 @@ public class StmtExecutor {
 
                 cacheAnalyzer.updateCache();
             }
+            LOG.info("wqt test 4 StmtExecutor::sendResult isisSendFields last");
             if (!isSendFields) {
                 if (!isOutfileQuery) {
                     if (ConnectContext.get() != null && ConnectContext.get().getSessionVariable().dryRunQuery) {
@@ -1639,6 +1643,7 @@ public class StmtExecutor {
 
             statisticsForAuditLog = batch.getQueryStatistics() == null ? null : batch.getQueryStatistics().toBuilder();
             context.getState().setEof();
+            LOG.info("wqt test 5 StmtExecutor::sendResult finish fetch result");
             profile.getSummaryProfile().setQueryFetchResultFinishTime();
         } catch (Exception e) {
             // notify all be cancel runing fragment
