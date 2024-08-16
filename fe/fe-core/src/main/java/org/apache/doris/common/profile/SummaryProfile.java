@@ -295,8 +295,16 @@ public class SummaryProfile {
         this.queryFetchResultConsumeTime += TimeUtils.getStartTimeMs() - tempStarTime;
     }
 
+    public String getFetchResultConsumeTime() {
+        return RuntimeProfile.printCounter(queryFetchResultConsumeTime, TUnit.TIME_MS)
+    }
+
     public void freshWriteResultConsumeTime() {
         this.queryWriteResultConsumeTime += TimeUtils.getStartTimeMs() - tempStarTime;
+    }
+
+    public String getWriteResultConsumeTime() {
+        return RuntimeProfile.printCounter(queryWriteResultConsumeTime, TUnit.TIME_MS)
     }
 
     public long getQueryBeginTime() {
@@ -434,7 +442,7 @@ public class SummaryProfile {
         return RuntimeProfile.printCounter(nereidsTranslateFinishTime - nereidsOptimizeFinishTime, TUnit.TIME_MS);
     }
 
-    private String getPrettyQueryAnalysisFinishTime() {
+    public String getPrettyQueryAnalysisFinishTime() {
         if (queryBeginTime == -1 || queryAnalysisFinishTime == -1) {
             return "N/A";
         }
@@ -504,21 +512,21 @@ public class SummaryProfile {
         return RuntimeProfile.printCounter(createScanRangeFinishTime - getSplitsFinishTime, TUnit.TIME_MS);
     }
 
-    private String getPrettyQueryPlanFinishTime() {
+    public String getPrettyQueryPlanFinishTime() {
         if (queryAnalysisFinishTime == -1 || queryPlanFinishTime == -1) {
             return "N/A";
         }
         return RuntimeProfile.printCounter(queryPlanFinishTime - queryAnalysisFinishTime, TUnit.TIME_MS);
     }
 
-    private String getPrettyQueryScheduleFinishTime() {
+    public String getPrettyQueryScheduleFinishTime() {
         if (queryPlanFinishTime == -1 || queryScheduleFinishTime == -1) {
             return "N/A";
         }
         return RuntimeProfile.printCounter(queryScheduleFinishTime - queryPlanFinishTime, TUnit.TIME_MS);
     }
 
-    private String getPrettyQueryFetchResultFinishTime() {
+    public String getPrettyQueryFetchResultFinishTime() {
         if (queryScheduleFinishTime == -1 || queryFetchResultFinishTime == -1) {
             return "N/A";
         }
