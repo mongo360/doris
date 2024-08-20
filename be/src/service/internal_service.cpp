@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "service/internal_service.h"
-
 #include <assert.h>
 #include <brpc/closure_guard.h>
 #include <brpc/controller.h>
@@ -92,6 +90,7 @@
 #include "runtime/stream_load/stream_load_context.h"
 #include "runtime/thread_context.h"
 #include "runtime/types.h"
+#include "service/internal_service.h"
 #include "service/point_query_executor.h"
 #include "util/async_io.h"
 #include "util/brpc_client_cache.h"
@@ -285,6 +284,19 @@ void PInternalServiceImpl::exec_plan_fragment(google::protobuf::RpcController* c
                                               const PExecPlanFragmentRequest* request,
                                               PExecPlanFragmentResult* response,
                                               google::protobuf::Closure* done) {
+    // wqt add start
+    {
+        const uint8_t* buf = (const uint8_t*)(request->request().data());
+        uint32_t len = request->request().size();
+        TExecPlanFragmentParamsList t_request;
+        bool compact = request->has_compact() ? request->compact() : false;
+        deserialize_thrift_msg(buf, &len, compact, &t_request);
+        TUniqueId query_id = t_request.paramsList[0].params.query_id;
+        LOG(INFO) << "wqt exec_plan_fragment start query_id: "
+                  << UniqueId(query_id.hi, query_id.lo);
+    }
+    // wqt add end
+
     bool ret = _light_work_pool.try_offer([this, controller, request, response, done]() {
         _exec_plan_fragment_in_pthread(controller, request, response, done);
     });
