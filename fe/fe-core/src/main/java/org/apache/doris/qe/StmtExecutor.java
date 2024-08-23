@@ -975,6 +975,7 @@ public class StmtExecutor {
         }
 
         parseByLegacy();
+        LOG.info("wqt {} parseByLegacy finish", DebugUtil.printId(context.queryId()));
 
         boolean preparedStmtReanalyzed = false;
         PrepareStmtContext preparedStmtCtx = null;
@@ -1080,6 +1081,8 @@ public class StmtExecutor {
                 InsertStmt insertStmt = (InsertStmt) parsedStmt;
                 insertStmt.getTables(analyzer, tableMap, parentViewNameSet);
             }
+
+            LOG.info("wqt {} queryStmt.getTables finish", DebugUtil.printId(context.queryId()));
             // table id in tableList is in ascending order because that table map is a sorted map
             List<TableIf> tables = Lists.newArrayList(tableMap.values());
             int analyzeTimes = 2;
@@ -1179,6 +1182,7 @@ public class StmtExecutor {
             }
         }
         parsedStmt.analyze(analyzer);
+        LOG.info("wqt {} parsedStmt.analyze finish", DebugUtil.printId(context.queryId()));
         if (parsedStmt instanceof QueryStmt || parsedStmt instanceof InsertStmt) {
             ExprRewriter rewriter = analyzer.getExprRewriter();
             rewriter.reset();

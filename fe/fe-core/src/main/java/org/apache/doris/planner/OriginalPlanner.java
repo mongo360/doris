@@ -42,6 +42,7 @@ import org.apache.doris.catalog.ScalarType;
 import org.apache.doris.catalog.Type;
 import org.apache.doris.common.Config;
 import org.apache.doris.common.UserException;
+import org.apache.doris.common.util.DebugUtil;
 import org.apache.doris.qe.CommonResultSet;
 import org.apache.doris.qe.ConnectContext;
 import org.apache.doris.qe.ResultSet;
@@ -176,6 +177,8 @@ public class OriginalPlanner extends Planner {
             insertStmt.prepareExpressions();
         }
 
+        // LOG.info("wqt {} singleNodePlanner.createSingleNodePlan finish", DebugUtil.printId(context.queryId()));
+
         // TODO chenhao16 , no used materialization work
         // compute referenced slots before calling computeMemLayout()
         //analyzer.markRefdSlots(analyzer, singleNodePlan, resultExprs, null);
@@ -259,6 +262,8 @@ public class OriginalPlanner extends Planner {
             rootFragment.setOutputExprs(resExprs);
         }
         LOG.debug("finalize plan fragments");
+
+        // LOG.info("wqt {} plan fragments finish", DebugUtil.printId(context.queryId()));
         for (PlanFragment fragment : fragments) {
             fragment.finalize(queryStmt);
         }

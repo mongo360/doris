@@ -516,7 +516,8 @@ public class SelectStmt extends QueryStmt {
                 }
             }
 
-            if (!haveMv || !ConnectContext.get().getSessionVariable().isEnableNereidsPlanner()) {
+            //if (!haveMv || !ConnectContext.get().getSessionVariable().isEnableNereidsPlanner()) {
+            if (!haveMv) {
                 forbiddenMVRewrite();
             }
         }
