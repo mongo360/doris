@@ -729,7 +729,8 @@ public class Coordinator implements CoordInterface {
                 profileFragmentId += 1;
             } // end for fragments
 
-            LOG.info("wqt {} BeginToSendFragmentsRPC ", DebugUtil.printId(queryId));
+            LOG.info("wqt {} BeginToSendFragmentsRPC twoPhaseExecution:{}",
+                    DebugUtil.printId(queryId), twoPhaseExecution);
             // 4. send and wait fragments rpc
             List<Triple<BackendExecStates, BackendServiceProxy, Future<InternalService.PExecPlanFragmentResult>>>
                     futures = Lists.newArrayList();
@@ -748,6 +749,7 @@ public class Coordinator implements CoordInterface {
             waitRpc(futures, this.timeoutDeadline - System.currentTimeMillis(), "send fragments");
 
             if (twoPhaseExecution) {
+                LOG.info("wqt {} execPlanFragmentStartAsyncRPC ", DebugUtil.printId(queryId));
                 // 5. send and wait execution start rpc
                 futures.clear();
                 for (BackendExecStates states : beToExecStates.values()) {
@@ -762,6 +764,8 @@ public class Coordinator implements CoordInterface {
                 }
                 waitRpc(futures, this.timeoutDeadline - System.currentTimeMillis(), "send execution start");
             }
+            LOG.info("wqt {} SendFragmentsRPCFinish twoPhaseExecution:{}",
+                    DebugUtil.printId(queryId), twoPhaseExecution);
 
             attachInstanceProfileToFragmentProfile();
         } finally {

@@ -177,7 +177,8 @@ public class OriginalPlanner extends Planner {
             insertStmt.prepareExpressions();
         }
 
-        LOG.info("wqt {} singleNodePlanner.createSingleNodePlan finish", DebugUtil.printId(ConnectContext.get().queryId()));
+        LOG.info("wqt {} singleNodePlanner.createSingleNodePlan finish",
+                DebugUtil.printId(ConnectContext.get().queryId()));
 
         // TODO chenhao16 , no used materialization work
         // compute referenced slots before calling computeMemLayout()
