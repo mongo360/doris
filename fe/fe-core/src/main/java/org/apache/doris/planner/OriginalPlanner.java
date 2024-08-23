@@ -177,7 +177,7 @@ public class OriginalPlanner extends Planner {
             insertStmt.prepareExpressions();
         }
 
-        // LOG.info("wqt {} singleNodePlanner.createSingleNodePlan finish", DebugUtil.printId(context.queryId()));
+        LOG.info("wqt {} singleNodePlanner.createSingleNodePlan finish", DebugUtil.printId(ConnectContext.get().queryId()));
 
         // TODO chenhao16 , no used materialization work
         // compute referenced slots before calling computeMemLayout()
@@ -263,7 +263,7 @@ public class OriginalPlanner extends Planner {
         }
         LOG.debug("finalize plan fragments");
 
-        // LOG.info("wqt {} plan fragments finish", DebugUtil.printId(context.queryId()));
+        LOG.info("wqt {} plan fragments finish", DebugUtil.printId(ConnectContext.get().queryId()));
         for (PlanFragment fragment : fragments) {
             fragment.finalize(queryStmt);
         }
