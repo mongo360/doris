@@ -19,7 +19,6 @@ package org.apache.doris.statistics;
 
 import org.apache.doris.catalog.Column;
 import org.apache.doris.catalog.OlapTable;
-import org.apache.doris.catalog.PartitionInfo;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.common.io.Text;
 import org.apache.doris.common.io.Writable;
@@ -169,34 +168,6 @@ public class TableStatsMeta implements Writable {
                             .map(Column::getName).collect(Collectors.toSet()))) {
                 updatedRows.set(0);
                 newPartitionLoaded.set(false);
-            }
-        }
-    }
-
-    @Override
-    public void gsonPostProcess() throws IOException {
-        if (indexesRowCount == null) {
-            indexesRowCount = new ConcurrentHashMap<>();
-        }
-        if (newPartitionLoaded == null) {
-            newPartitionLoaded = new AtomicBoolean(false);
-        }
-        if (colNameToColStatsMeta == null) {
-            colNameToColStatsMeta = new ConcurrentHashMap<>();
-        }
-    }
-
-    public long getRowCount(long indexId) {
-        return indexesRowCount.getOrDefault(indexId, -1L);
-    }
-
-    private void clearStaleIndexRowCount(OlapTable table) {
-        Iterator<Long> iterator = indexesRowCount.keySet().iterator();
-        List<Long> indexIds = table.getIndexIds();
-        while (iterator.hasNext()) {
-            long key = iterator.next();
-            if (indexIds.contains(key)) {
-                iterator.remove();
             }
         }
     }
