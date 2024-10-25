@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "runtime/tablets_channel.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/internal_service.pb.h>
 #include <gen_cpp/types.pb.h>
 #include <time.h>
+
+#include "runtime/tablets_channel.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -40,6 +40,7 @@
 #include "olap/delta_writer.h"
 #include "olap/storage_engine.h"
 #include "olap/txn_manager.h"
+#include "runtime/descriptors.h"
 #include "runtime/load_channel.h"
 #include "util/doris_metrics.h"
 #include "util/metrics.h"
@@ -64,6 +65,8 @@ TabletsChannel::TabletsChannel(const TabletsChannelKey& key, const UniqueId& loa
     std::call_once(once_flag, [] {
         REGISTER_HOOK_METRIC(tablet_writer_count, [&]() { return _s_tablet_writer_count.load(); });
     });
+    LOG(INFO) << "wqt TabletsChannel::TabletsChannel load_id:" << load_id.to_string()
+              << ", index_id:" << key.index_id;
 }
 
 TabletsChannel::~TabletsChannel() {
@@ -102,12 +105,16 @@ Status TabletsChannel::open(const PTabletWriterOpenRequest& request) {
         return Status::OK();
     }
     LOG(INFO) << "open tablets channel: " << _key << ", tablets num: " << request.tablets().size()
-              << ", timeout(s): " << request.load_channel_timeout_s();
+              << ", timeout(s): " << request.load_channel_timeout_s() << "\n"
+              << doris::get_stack_trace();
     _txn_id = request.txn_id();
     _index_id = request.index_id();
     _schema = new OlapTableSchemaParam();
     RETURN_IF_ERROR(_schema->init(request.schema()));
     _tuple_desc = _schema->tuple_desc();
+
+    LOG(INFO) << "wqt TabletsChannel::open txn_id: " << _txn_id << ", index_id:" << _index_id
+              << ", tuple_desc:" << _tuple_desc->debug_string();
 
     _num_remaining_senders = request.num_senders();
     _next_seqs.resize(_num_remaining_senders, 0);
@@ -144,7 +151,8 @@ Status TabletsChannel::close(
         return _close_status;
     }
     LOG(INFO) << "close tablets channel: " << _key << ", sender id: " << sender_id
-              << ", backend id: " << backend_id;
+              << ", backend id: " << backend_id << "\n"
+              << doris::get_stack_trace();
     for (auto pid : partition_ids) {
         _partition_ids.emplace(pid);
     }
@@ -195,6 +203,7 @@ Status TabletsChannel::close(
 
         _write_single_replica = write_single_replica;
 
+        LOG(INFO) << "wqt TabletsChannel::close need_wait_writers:" << need_wait_writers.size();
         // 2. wait all writer finished flush.
         for (auto writer : need_wait_writers) {
             writer->wait_flush();
@@ -383,6 +392,10 @@ Status TabletsChannel::_open_all_writers(const PTabletWriterOpenRequest& request
         wrequest.slots = index_slots;
         wrequest.is_high_priority = _is_high_priority;
         wrequest.table_schema_param = _schema;
+
+        LOG(INFO) << "wqt TabletsChannel::_open_all_writers add writer index_id:"
+                  << wrequest.index_id << ", tablet_id:" << wrequest.tablet_id
+                  << ", slots:" << wrequest.slots->size();
 
         DeltaWriter* writer = nullptr;
         auto st = DeltaWriter::open(&wrequest, &writer, _profile, _load_id);

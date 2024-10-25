@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/partial_update_info.h"
-
 #include <gen_cpp/olap_file.pb.h>
 
+#include "olap/partial_update_info.h"
 #include "olap/tablet_schema.h"
 #include "util/string_util.h"
 
@@ -102,8 +101,10 @@ void PartialUpdateInfo::from_pb(PartialUpdateInfoPB* partial_update_info_pb) {
 
 std::string PartialUpdateInfo::summary() const {
     return fmt::format(
-            "update_cids={}, missing_cids={}, is_strict_mode={}, max_version_in_flush_phase={}",
-            update_cids.size(), missing_cids.size(), is_strict_mode, max_version_in_flush_phase);
+            "partial_update={}, update_cids={}, missing_cids={}, is_strict_mode={}, "
+            "max_version_in_flush_phase={}",
+            is_partial_update, update_cids.size(), missing_cids.size(), is_strict_mode,
+            max_version_in_flush_phase);
 }
 
 void PartialUpdateInfo::_generate_default_values_for_missing_cids(

@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/vunion_node.h"
-
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/PlanNodes_types.h>
 #include <opentelemetry/nostd/shared_ptr.h>
@@ -38,6 +36,7 @@
 #include "vec/core/column_with_type_and_name.h"
 #include "vec/core/columns_with_type_and_name.h"
 #include "vec/data_types/data_type_number.h"
+#include "vec/exec/vunion_node.h"
 #include "vec/exprs/vexpr.h"
 #include "vec/exprs/vexpr_context.h"
 #include "vec/utils/util.hpp"
@@ -90,6 +89,11 @@ Status VUnionNode::prepare(RuntimeState* state) {
     // Prepare result expr lists.
     for (int i = 0; i < _child_expr_lists.size(); ++i) {
         RETURN_IF_ERROR(VExpr::prepare(_child_expr_lists[i], state, child(i)->row_desc()));
+    }
+    LOG(INFO) << "wqt VUnionNode::prepare row_desc: " << _row_descriptor.debug_string();
+    if (_output_row_descriptor) {
+        LOG(INFO) << "wqt VUnionNode::prepare oupput_row_desc: "
+                  << _output_row_descriptor->debug_string();
     }
     return Status::OK();
 }

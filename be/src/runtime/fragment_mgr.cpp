@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "runtime/fragment_mgr.h"
-
 #include <bvar/latency_recorder.h>
 #include <exprs/runtime_filter.h>
 #include <fmt/format.h>
@@ -41,6 +39,8 @@
 #include <thrift/transport/TTransportException.h>
 
 #include <atomic>
+
+#include "runtime/fragment_mgr.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
 #include <map>
@@ -701,7 +701,8 @@ Status FragmentMgr::_get_query_ctx(const Params& params, TUniqueId query_id, boo
         LOG(INFO) << "query_id: " << UniqueId(query_ctx->query_id.hi, query_ctx->query_id.lo)
                   << " coord_addr " << query_ctx->coord_addr
                   << " total fragment num on current host: " << params.fragment_num_on_host
-                  << " report audit fe:" << query_ctx->current_connect_fe;
+                  << " report audit fe:" << query_ctx->current_connect_fe << "\n"
+                  << doris::get_stack_trace();
         query_ctx->query_globals = params.query_globals;
 
         if (params.__isset.resource_info) {

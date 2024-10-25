@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "io/fs/s3_file_system.h"
-
 #include <aws/core/client/AWSError.h>
 #include <aws/core/http/HttpResponse.h>
 #include <aws/core/utils/Outcome.h>
@@ -53,6 +51,8 @@
 #include <stddef.h>
 
 #include <algorithm>
+
+#include "io/fs/s3_file_system.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -187,6 +187,11 @@ Status S3FileSystem::delete_file_impl(const Path& file) {
     GET_KEY(key, file);
     request.WithBucket(_s3_conf.bucket).WithKey(key);
 
+    // wqt add start
+    // LOG(INFO) << "wqt S3FileSystem::delete_file_impl path: " << file
+    //          << ", track: " << doris::get_stack_trace();
+    // wqt add end
+
     auto outcome = client->DeleteObject(request);
     if (outcome.IsSuccess() ||
         outcome.GetError().GetResponseCode() == Aws::Http::HttpResponseCode::NOT_FOUND) {
@@ -206,6 +211,11 @@ Status S3FileSystem::delete_directory_impl(const Path& dir) {
     }
     request.WithBucket(_s3_conf.bucket).WithPrefix(prefix);
 
+    // wqt add start
+    // LOG(INFO) << "wqt S3FileSystem::delete_directory_impl path: " << dir
+    //           << ", track: " << doris::get_stack_trace();
+    // wqt add end
+
     Aws::S3::Model::DeleteObjectsRequest delete_request;
     delete_request.SetBucket(_s3_conf.bucket);
     bool is_trucated = false;
@@ -222,9 +232,14 @@ Status S3FileSystem::delete_directory_impl(const Path& dir) {
             objects.emplace_back().SetKey(obj.GetKey());
         }
         if (!objects.empty()) {
+            // wqt add start
+            // LOG(INFO) << "wqt S3FileSystem::delete_directory_impl DeleteObjects: "
+            //           << objects.size();
+            // wqt add end
             Aws::S3::Model::Delete del;
             del.WithObjects(std::move(objects)).SetQuiet(true);
             delete_request.SetDelete(std::move(del));
+
             auto delete_outcome = client->DeleteObjects(delete_request);
             if (!delete_outcome.IsSuccess()) {
                 return Status::IOError("failed to delete dir {}: {}", dir.native(),
@@ -248,6 +263,15 @@ Status S3FileSystem::delete_directory_impl(const Path& dir) {
 Status S3FileSystem::batch_delete_impl(const std::vector<Path>& remote_files) {
     auto client = get_client();
     CHECK_S3_CLIENT(client);
+
+    // wqt add start
+    // std::string strFiles;
+    // for (auto& pf : remote_files) {
+    //     strFiles += pf.string();
+    // }
+    // LOG(INFO) << "wqt S3FileSystem::batch_delete_impl num: " << remote_files.size()
+    //           << ", files:" << strFiles << ", track: " << doris::get_stack_trace();
+    // wqt add end
 
     // `DeleteObjectsRequest` can only contain 1000 keys at most.
     constexpr size_t max_delete_batch = 1000;

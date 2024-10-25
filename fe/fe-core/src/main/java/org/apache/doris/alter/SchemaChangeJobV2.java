@@ -305,6 +305,13 @@ public class SchemaChangeJobV2 extends AlterJobV2 {
         } finally {
             tbl.readUnlock();
         }
+        // wqt add start
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            LOG.warn("InterruptedException: ", e);
+        }
+        // wqt add end
 
         if (!FeConstants.runningUnitTest) {
             // send all tasks and wait them finished
@@ -482,6 +489,14 @@ public class SchemaChangeJobV2 extends AlterJobV2 {
         } finally {
             tbl.readUnlock();
         }
+
+        // wqt add start
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            LOG.warn("InterruptedException: ", e);
+        }
+        // wqt add end
 
         AgentTaskQueue.addBatchTask(schemaChangeBatchTask);
         AgentTaskExecutor.submit(schemaChangeBatchTask);

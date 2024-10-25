@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "agent/task_worker_pool.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/AgentService_types.h>
 #include <gen_cpp/HeartbeatService_types.h>
@@ -26,6 +24,8 @@
 #include <unistd.h>
 
 #include <algorithm>
+
+#include "agent/task_worker_pool.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <thrift/protocol/TDebugProtocol.h>
 
@@ -109,7 +109,7 @@ TaskWorkerPool::TaskWorkerPool(const TaskWorkerType task_worker_type, ExecEnv* e
           _is_doing_work(false),
           _task_worker_type(task_worker_type) {
     string task_worker_type_name = TYPE_STRING(task_worker_type);
-    _name = strings::Substitute("TaskWorkerPool.$0", task_worker_type_name);
+    _name = strings::Substitute("TWP.$0", task_worker_type_name);
 
     _metric_entity = DorisMetrics::instance()->metric_registry()->register_entity(
             task_worker_type_name, {{"type", task_worker_type_name}});

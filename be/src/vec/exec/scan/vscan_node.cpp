@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/scan/vscan_node.h"
-
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Metrics_types.h>
 #include <gen_cpp/Opcodes_types.h>
@@ -55,6 +53,7 @@
 #include "vec/core/types.h"
 #include "vec/exec/scan/pip_scanner_context.h"
 #include "vec/exec/scan/scanner_scheduler.h"
+#include "vec/exec/scan/vscan_node.h"
 #include "vec/exprs/vcompound_pred.h"
 #include "vec/exprs/vectorized_fn_call.h"
 #include "vec/exprs/vexpr.h"
@@ -408,6 +407,10 @@ Status VScanNode::_normalize_conjuncts() {
         }
     }
 
+    // wqt add start
+    // VLOG_NOTICE << "wqt _normalize_conjuncts expr: " << VExpr::debug_string(_conjuncts);
+    // wqt add end
+
     for (auto it = _conjuncts.begin(); it != _conjuncts.end();) {
         auto& conjunct = *it;
         if (conjunct->root()) {
@@ -441,6 +444,19 @@ Status VScanNode::_normalize_conjuncts() {
                     }
                 },
                 it.second.second);
+        // wqt add start
+        /*
+        std::vector<TCondition> filters;
+        std::visit([&](auto&& range) { range.to_olap_filter(filters); }, it.second.second);
+        string logInfo;
+        logInfo = "wqt _slot_id_to_value_range column: " + it.second.first->col_name() + ", [";
+        for (auto& node : filters) {
+            logInfo += apache::thrift::ThriftDebugString(node) + ",";
+        }
+        logInfo += "]";
+        VLOG_NOTICE << logInfo;
+        */
+        // wqt add end
         _colname_to_value_range[it.second.first->col_name()] = it.second.second;
     }
 
@@ -486,13 +502,31 @@ Status VScanNode::_normalize_predicate(const VExprSPtr& conjunct_expr_root, VExp
             SlotDescriptor* slot = nullptr;
             ColumnValueRangeType* range = nullptr;
             PushDownType pdt = PushDownType::UNACCEPTABLE;
+
+            // wqt add start
+            /*
+            {
+                VLOG_NOTICE << "wqt _normalize_predicate leaf start node_type: "
+                            << cur_expr->node_type() << " impl: " << cur_expr->debug_string();
+            }
+            */
+            // wqt add end
+
             RETURN_IF_ERROR(_eval_const_conjuncts(cur_expr, context, &pdt));
             if (pdt == PushDownType::ACCEPTABLE) {
+                // wqt add start
+                // VLOG_NOTICE << "wqt _normalize_predicate  _eval_const_conjuncts return";
+                // wqt add end
                 output_expr = nullptr;
                 return Status::OK();
             }
             if (_is_predicate_acting_on_slot(cur_expr, in_predicate_checker, &slot, &range) ||
                 _is_predicate_acting_on_slot(cur_expr, eq_predicate_checker, &slot, &range)) {
+                // wqt add start
+                // VLOG_NOTICE << "wqt _normalize_predicate _is_predicate_acting_on_slot start expr: "
+                //             << cur_expr->debug_string();
+                // wqt add end
+
                 Status status = Status::OK();
                 std::visit(
                         [&](auto& value_range) {
@@ -530,6 +564,23 @@ Status VScanNode::_normalize_predicate(const VExprSPtr& conjunct_expr_root, VExp
                             }
                         },
                         *range);
+                // wqt add start
+                /*
+                {
+                    std::vector<TCondition> filters;
+                    std::visit([&](auto&& range) { range.to_olap_filter(filters); }, *range);
+
+                    string logInfo;
+                    logInfo = "wqt _normalize_predicate _is_predicate_acting_on_slot finish expr:" +
+                              cur_expr->debug_string() + ",  range: [";
+                    for (auto& node : filters) {
+                        logInfo += apache::thrift::ThriftDebugString(node) + ",";
+                    }
+                    logInfo += "]";
+                    VLOG_NOTICE << logInfo;
+                }
+                */
+                // wqt add end
                 RETURN_IF_ERROR(status);
             }
 
@@ -655,17 +706,20 @@ bool VScanNode::_is_predicate_acting_on_slot(
     VExprSPtr child_contains_slot;
     if (!checker(expr->children(), slot_ref, child_contains_slot)) {
         // not a slot ref(column)
+        // VLOG_NOTICE << "wqt _is_predicate_acting_on_slot return 1";
         return false;
     }
 
     auto entry = _slot_id_to_value_range.find(slot_ref->slot_id());
     if (_slot_id_to_value_range.end() == entry) {
+        // VLOG_NOTICE << "wqt _is_predicate_acting_on_slot return 2";
         return false;
     }
     // if the slot is a complex type(array/map/struct), we do not push down the predicate, because
     // we delete pack these type into predict column, and origin pack action is wrong. we should
     // make sense to push down this complex type after we delete predict column.
     if (is_complex_type(remove_nullable(slot_ref->data_type()))) {
+        // VLOG_NOTICE << "wqt _is_predicate_acting_on_slot return 3";
         return false;
     }
     *slot_desc = entry->second.first;
@@ -675,12 +729,14 @@ bool VScanNode::_is_predicate_acting_on_slot(
         child_contains_slot->type().scale != (*slot_desc)->type().scale) {
         if (!ignore_cast(*slot_desc, child_contains_slot.get())) {
             // the type of predicate not match the slot's type
+            // VLOG_NOTICE << "wqt _is_predicate_acting_on_slot return 4";
             return false;
         }
     } else if (child_contains_slot->type().is_datetime_type() &&
                child_contains_slot->node_type() == doris::TExprNodeType::CAST_EXPR) {
         // Expr `CAST(CAST(datetime_col AS DATE) AS DATETIME) = datetime_literal` should not be
         // push down.
+        // VLOG_NOTICE << "wqt _is_predicate_acting_on_slot return 5";
         return false;
     }
     *range = &(entry->second.second);
@@ -699,6 +755,9 @@ Status VScanNode::_eval_const_conjuncts(VExpr* vexpr, VExprContext* expr_ctx, Pu
                 *pdt = PushDownType::ACCEPTABLE;
                 _eos = true;
             }
+            // wqt add start
+            // VLOG_NOTICE << "wqt _eval_const_conjuncts is_constant pdt: " << int(*pdt);
+            // wqt add end
         } else if (const ColumnVector<UInt8>* bool_column =
                            check_and_get_column<ColumnVector<UInt8>>(
                                    const_col_wrapper->column_ptr)) {
@@ -1279,6 +1338,24 @@ Status VScanNode::_change_value_range(ColumnValueRange<PrimitiveType>& temp_rang
     } else {
         static_assert(always_false_v<PrimitiveType>);
     }
+    // wqt add start
+    /*
+    {
+        std::vector<TCondition> filters;
+        temp_range.to_olap_filter(filters);
+        string logInfo;
+        logInfo = "wqt _change_value_range fn_name: " + fn_name +
+                  typeid(ChangeFixedValueRangeFunc).name() +
+                  " PrimitiveType:" + std::to_string(int(PrimitiveType)) + " ";
+        for (auto& node : filters) {
+            logInfo += apache::thrift::ThriftDebugString(node) + ",";
+        }
+        logInfo += "]";
+        logInfo += "\n" + get_stack_trace_by_boost();
+        VLOG_NOTICE << logInfo;
+    }
+    */
+    // wqt add end
 
     return Status::OK();
 }

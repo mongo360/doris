@@ -183,8 +183,13 @@ public class SchemaChangeHandler extends AlterHandler {
 
         Set<String> newColNameSet = Sets.newHashSet(column.getName());
 
-        return addColumnInternal(olapTable, column, columnPos, targetIndexId, baseIndexId, indexSchemaMap,
+        boolean lightSchemaChange = olapTable.getEnableLightSchemaChange();
+        lightSchemaChange = addColumnInternal(olapTable, column, columnPos, targetIndexId, baseIndexId, indexSchemaMap,
                 newColNameSet, false, colUniqueIdSupplierMap);
+        if (lightSchemaChange) {
+            lightSchemaChange = checkLightSchemaChange(olapTable, column, indexSchemaMap);
+        }
+        return lightSchemaChange;
     }
 
     private void processAddColumn(AddColumnClause alterClause, Table externalTable, List<Column> newSchema)
@@ -963,11 +968,11 @@ public class SchemaChangeHandler extends AlterHandler {
             throw new DdlException("BITMAP_UNION must be used in AGG_KEYS");
         }
 
-        //type key column do not allow light schema change.
-        if (newColumn.isKey()) {
-            LOG.debug("newColumn: {}, isKey()==true", newColumn);
-            lightSchemaChange = false;
-        }
+        //type key column do not allow light schema change
+        // if (newColumn.isKey()) {
+        //    LOG.debug("newColumn: {}, isKey()==true", newColumn);
+        //    lightSchemaChange = false;
+        // }
 
         // check if the new column already exist in base schema.
         // do not support adding new column which already exist in base schema.
@@ -1100,6 +1105,65 @@ public class SchemaChangeHandler extends AlterHandler {
         }
         return lightSchemaChange;
     }
+
+    /**
+     * @param olapTable
+     * @param newColumn
+     * @param indexSchemaMap
+     * @return true: can light schema change, false: cannot
+     * @throws DdlException
+     */
+    private boolean checkLightSchemaChange(OlapTable olapTable, Column newColumn,
+                                           Map<Long, LinkedList<Column>> indexSchemaMap) {
+        // only new table generate ColUniqueId, exist table do not.
+        boolean lightSchemaChange = olapTable.getEnableLightSchemaChange();
+        if (!lightSchemaChange || !newColumn.isKey()) {
+            return lightSchemaChange;
+        }
+
+        long baseIndexId = olapTable.getBaseIndexId();
+        Set<String> baseColumnNames = Sets.newHashSet();
+
+        // check light schema change with add key column
+        for (Long alterIndexId : indexSchemaMap.keySet()) {
+            List<Column> alterSchema = indexSchemaMap.get(alterIndexId);
+            int newColumnPos = -1;
+            for (int i = 0; i < alterSchema.size(); ++i) {
+                if (alterSchema.get(i).getName() == newColumn.getName()) {
+                    newColumnPos = i;
+                }
+            }
+
+            if (newColumnPos >= 0) {
+                // add key column in short key columns
+                MaterializedIndexMeta currentIndexMeta = olapTable.getIndexMetaByIndexId(alterIndexId);
+                if (newColumnPos < currentIndexMeta.getShortKeyColumnCount()) {
+                    return false;
+                }
+
+                // not support add key column for mv index
+                if (alterIndexId != baseIndexId) {
+                    if (baseColumnNames.isEmpty()) {
+                        for (Column col : olapTable.getBaseSchemaKeyColumns()) {
+                            baseColumnNames.add(col.getName());
+                        }
+                    }
+                    for (Column col : olapTable.getKeyColumnsByIndexId(alterIndexId)) {
+                        if (null != col.getDefineExpr() || !baseColumnNames.contains(col.getName())) {
+                            return false;
+                        }
+                    }
+                }
+
+                // unique key merge on write
+                if (olapTable.getEnableUniqueKeyMergeOnWrite()) {
+                    return false;
+                }
+            }
+        }
+        return lightSchemaChange;
+    }
+
 
     /*
      * add new column to specified index schema('modIndexSchema').
@@ -2007,7 +2071,7 @@ public class SchemaChangeHandler extends AlterHandler {
                 }
             } // end for alter clauses
 
-            LOG.debug("table: {}({}), lightSchemaChange: {}, lightIndexChange: {},"
+            LOG.info("table: {}({}), lightSchemaChange: {}, lightIndexChange: {},"
                     + " buildIndexChange: {}, indexSchemaMap:{}",
                     olapTable.getName(), olapTable.getId(), lightSchemaChange,
                     lightIndexChange, buildIndexChange, indexSchemaMap);

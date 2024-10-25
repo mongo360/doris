@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/rowset/segment_v2/column_reader.h"
-
 #include <assert.h>
 #include <gen_cpp/segment_v2.pb.h>
 
@@ -25,8 +23,11 @@
 #include <ostream>
 #include <set>
 
+#include "olap/rowset/segment_v2/column_reader.h"
+
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
+#include "common/logging.h"
 #include "io/fs/file_reader.h"
 #include "olap/block_column_predicate.h"
 #include "olap/column_predicate.h"
@@ -417,6 +418,12 @@ bool ColumnReader::_zone_map_match_condition(const ZoneMapPB& zone_map,
     if (zone_map.pass_all() || min_value_container == nullptr || max_value_container == nullptr) {
         return true;
     }
+
+    // wqt add start
+    // VLOG_NOTICE << "wqt ColumnReader::_zone_map_match_condition min: "
+    //             << min_value_container->to_string()
+    //             << ", max: " << max_value_container->to_string();
+    // wqt add end
 
     return col_predicates->evaluate_and({min_value_container, max_value_container});
 }

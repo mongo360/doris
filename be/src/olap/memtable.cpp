@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/memtable.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <pdqsort.h>
@@ -32,6 +30,7 @@
 #include "common/config.h"
 #include "common/consts.h"
 #include "common/logging.h"
+#include "olap/memtable.h"
 #include "olap/olap_define.h"
 #include "olap/rowset/beta_rowset.h"
 #include "olap/rowset/rowset_writer.h"
@@ -485,8 +484,8 @@ Status MemTable::_generate_delete_bitmap(int32_t segment_id) {
 }
 
 Status MemTable::flush() {
-    VLOG_CRITICAL << "begin to flush memtable for tablet: " << tablet_id()
-                  << ", memsize: " << memory_usage() << ", rows: " << _stat.raw_rows;
+    LOG(INFO) << "wqt MemTable::flush begin to flush memtable for tablet: " << tablet_id()
+              << ", memsize: " << memory_usage() << ", rows: " << _stat.raw_rows;
     // For merge_on_write table, it must get all segments in this flush.
     // The id of new segment is set by the _num_segment of beta_rowset_writer,
     // and new segment ids is between [atomic_num_segments_before_flush, atomic_num_segments_after_flush),

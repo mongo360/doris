@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/delta_writer.h"
-
 #include <brpc/controller.h>
 #include <butil/errno.h>
 #include <fmt/format.h>
@@ -27,6 +25,8 @@
 #include <ostream>
 #include <string>
 #include <utility>
+
+#include "olap/delta_writer.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -154,6 +154,9 @@ Status DeltaWriter::init() {
                                               _req.tablet_id, _req.schema_hash);
     }
 
+    LOG(INFO) << "wqt DeltaWriter::init tablet_id:" << _req.tablet_id
+              << ", enable_unique_key_merge_on_write:"
+              << _tablet->enable_unique_key_merge_on_write();
     // get rowset ids snapshot
     if (_tablet->enable_unique_key_merge_on_write()) {
         std::lock_guard<std::shared_mutex> lck(_tablet->get_header_lock());
@@ -276,6 +279,7 @@ Status DeltaWriter::_flush_memtable_async() {
     if (_mem_table->empty()) {
         return Status::OK();
     }
+    LOG(INFO) << "wqt DeltaWriter::_flush_memtable_async track:" << doris::get_stack_trace();
     _mem_table->assign_segment_id();
     return _flush_token->submit(std::move(_mem_table));
 }
@@ -438,6 +442,8 @@ Status DeltaWriter::build_rowset() {
     }
     // use rowset meta manager to save meta
     RETURN_NOT_OK_STATUS_WITH_WARN(_rowset_writer->build(_cur_rowset), "fail to build rowset");
+    LOG(INFO) << "wqt DeltaWriter::build_rowset tablet_path:" << _cur_rowset->tablet_path()
+              << ", rowset_path:" << _cur_rowset->rowset_dir();
     return Status::OK();
 }
 
@@ -505,6 +511,8 @@ Status DeltaWriter::commit_txn(const PSlaveTabletNodes& slave_tablet_nodes,
         }
     }
 
+    LOG(INFO) << "wqt DeltaWriter::commit_txn tablet:" << _tablet->get_tablet_info().tablet_id
+              << ", load_id:" << _req.load_id << ", rowset: " << _cur_rowset->rowset_id();
     std::lock_guard<std::mutex> l(_lock);
     SCOPED_TIMER(_close_wait_timer);
     Status res = _storage_engine->txn_manager()->commit_txn(_req.partition_id, _tablet, _req.txn_id,
@@ -636,6 +644,25 @@ void DeltaWriter::_build_current_tablet_schema(int64_t index_id,
     }
 
     _tablet_schema->set_table_id(table_schema_param->table_id());
+
+    // wqt add start
+    {
+        TabletSchemaPB tablet_schema_pb;
+        ori_tablet_schema.to_schema_pb(&tablet_schema_pb);
+        LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema origin tablet_schema: "
+                  << TabletSchema::deterministic_string_serialize(tablet_schema_pb);
+
+        TabletSchemaPB new_tablet_schema_pb;
+        _tablet_schema->to_schema_pb(&new_tablet_schema_pb);
+        LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema new tablet_schema: "
+                  << TabletSchema::deterministic_string_serialize(new_tablet_schema_pb);
+
+        LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema tablet_id:"
+                  << _tablet->get_tablet_info().tablet_id
+                  << ", track: " << doris::get_stack_trace();
+    }
+    // wqt add end
+
     // set partial update columns info
     _partial_update_info = std::make_shared<PartialUpdateInfo>();
     _partial_update_info->init(*_tablet_schema, table_schema_param->is_partial_update(),
@@ -643,6 +670,8 @@ void DeltaWriter::_build_current_tablet_schema(int64_t index_id,
                                table_schema_param->is_strict_mode(),
                                table_schema_param->timestamp_ms(), table_schema_param->timezone(),
                                _cur_max_version);
+    LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema partial_update_info: "
+              << _partial_update_info->summary();
 }
 
 void DeltaWriter::_request_slave_tablet_pull_rowset(PNodeInfo node_info) {

@@ -60,6 +60,12 @@ public:
     //     capacity available.
     WorkThreadPool(uint32_t num_threads, uint32_t queue_size, const std::string& name)
             : _work_queue(queue_size), _shutdown(false), _name(name), _active_threads(0) {
+        // wqt add start
+        // {
+        //     LOG(INFO) << "wqt WorkThreadPool create_thread: " << _name
+        //               << ", number: " << num_threads << " : " << doris::get_stack_trace();
+        // }
+        // wqt add end
         for (int i = 0; i < num_threads; ++i) {
             _threads.create_thread(
                     std::bind<void>(std::mem_fn(&WorkThreadPool::work_thread), this, i));

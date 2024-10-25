@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/scan/new_olap_scan_node.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Metrics_types.h>
@@ -54,6 +52,7 @@
 #include "vec/columns/column.h"
 #include "vec/columns/column_const.h"
 #include "vec/common/string_ref.h"
+#include "vec/exec/scan/new_olap_scan_node.h"
 #include "vec/exec/scan/new_olap_scanner.h"
 #include "vec/exprs/vectorized_fn_call.h"
 #include "vec/exprs/vexpr.h"
@@ -265,6 +264,23 @@ Status NewOlapScanNode::_build_key_ranges_and_filters() {
 
         // 1. construct scan key except last olap engine short key
         _scan_keys.set_is_convertible(limit() == -1);
+
+        // wqt add start
+        /*
+        for (auto& iter : _colname_to_value_range) {
+            std::vector<TCondition> filters;
+            std::visit([&](auto&& range) { range.to_olap_filter(filters); }, iter.second);
+
+            string logInfo;
+            logInfo = "wqt _colname_to_value_range column: " + iter.first + ", [";
+            for (auto& node : filters) {
+                logInfo += apache::thrift::ThriftDebugString(node) + ",";
+            }
+            logInfo += "]";
+            VLOG_NOTICE << logInfo;
+        }
+        */
+        // wqt add end
 
         // we use `exact_range` to identify a key range is an exact range or not when we convert
         // it to `_scan_keys`. If `exact_range` is true, we can just discard it from `_olap_filters`.

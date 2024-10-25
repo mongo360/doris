@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/tablet_schema.h"
-
 #include <gen_cpp/Descriptors_types.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <glog/logging.h>
@@ -26,6 +24,8 @@
 
 #include <algorithm>
 #include <cctype>
+
+#include "olap/tablet_schema.h"
 // IWYU pragma: no_include <bits/std_abs.h>
 #include <cmath> // IWYU pragma: keep
 #include <ostream>
@@ -527,9 +527,16 @@ vectorized::AggregateFunctionPtr TabletColumn::get_aggregate_function(std::strin
     std::transform(agg_name.begin(), agg_name.end(), agg_name.begin(),
                    [](unsigned char c) { return std::tolower(c); });
 
+    // wqt add start
+    LOG(INFO) << "wqt TabletColumn::get_aggregate_function agg_name:" << origin_name << " - "
+              << suffix << ", type:" << type->get_name()
+              << ", _type:" << type->get_type_as_type_descriptor().type;
+    // wqt add end
+
     auto function = vectorized::AggregateFunctionSimpleFactory::instance().get(agg_name, {type},
                                                                                type->is_nullable());
     if (function) {
+        LOG(INFO) << "wqt TabletColumn::get_aggregate_function function finded";
         return function;
     }
     if (type->get_type_as_type_descriptor().type != PrimitiveType::TYPE_AGG_STATE) {

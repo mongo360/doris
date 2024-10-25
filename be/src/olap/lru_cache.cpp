@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include "olap/lru_cache.h"
-
 #include <stdlib.h>
 
 #include <mutex>
@@ -12,6 +10,7 @@
 #include <string>
 
 #include "gutil/bits.h"
+#include "olap/lru_cache.h"
 #include "runtime/thread_context.h"
 #include "util/doris_metrics.h"
 

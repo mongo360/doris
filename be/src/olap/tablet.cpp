@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/tablet.h"
-
 #include <assert.h>
 #include <butil/logging.h>
 #include <bvar/reducer.h>
@@ -27,6 +25,7 @@
 #include <gen_cpp/Metrics_types.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <gen_cpp/types.pb.h>
+#include <json2pb/pb_to_json.h>
 #include <rapidjson/document.h>
 #include <rapidjson/encodings.h>
 #include <rapidjson/prettywriter.h>
@@ -39,6 +38,8 @@
 #include <atomic>
 #include <boost/container/detail/std_fwd.hpp>
 #include <roaring/roaring.hh>
+
+#include "olap/tablet.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -1896,6 +1897,40 @@ void Tablet::build_tablet_report_info(TTabletInfo* tablet_info,
 // but not in tablet meta in local meta store
 void Tablet::generate_tablet_meta_copy(TabletMetaSharedPtr new_tablet_meta) const {
     std::shared_lock rdlock(_meta_lock);
+    // wqt add start
+    {
+        std::string json_meta;
+        json2pb::Pb2JsonOptions json_options;
+        json_options.pretty_json = true;
+        json_options.bytes_to_base64 = true;
+
+        TabletSchemaPB max_tablet_schema_pb;
+        _max_version_schema->to_schema_pb(&max_tablet_schema_pb);
+        json2pb::ProtoMessageToJson(max_tablet_schema_pb, &json_meta, json_options);
+        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _max_version_schema: "
+                  << json_meta << ", num_key_columns:" << _max_version_schema->num_key_columns();
+
+        TabletSchemaPB tablet_schema_pb;
+        std::string json_meta_1;
+        _schema->to_schema_pb(&tablet_schema_pb);
+        json2pb::ProtoMessageToJson(tablet_schema_pb, &json_meta_1, json_options);
+        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _schema: " << json_meta_1
+                  << ", num_key_columns:" << _schema->num_key_columns();
+
+        TabletSchemaPB meta_tablet_schema_pb;
+        std::string json_meta_2;
+        _tablet_meta->tablet_schema()->to_schema_pb(&meta_tablet_schema_pb);
+        json2pb::ProtoMessageToJson(meta_tablet_schema_pb, &json_meta_2, json_options);
+        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _tablet_meta._schema "
+                  << json_meta_2 << ", num_key_columns:" << _schema->num_key_columns();
+
+        for (auto entry : _rs_version_map) {
+            std::string json_rowset_meta;
+            entry.second->rowset_meta()->json_rowset_meta(&json_rowset_meta);
+            LOG(INFO) << "wqt Tablet::rowset_meta_info: " << json_rowset_meta;
+        }
+    }
+    // wqt add end
     generate_tablet_meta_copy_unlocked(new_tablet_meta);
 }
 

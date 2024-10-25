@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/olap/block_reader.h"
-
 #include <gen_cpp/olap_file.pb.h>
 #include <glog/logging.h>
 #include <stdint.h>
@@ -26,6 +24,8 @@
 #include <memory>
 #include <ostream>
 #include <string>
+
+#include "vec/olap/block_reader.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -164,12 +164,38 @@ Status BlockReader::_init_agg_state(const ReaderParams& read_params) {
     _stored_has_null_tag.resize(_stored_data_columns.size());
     _stored_has_variable_length_tag.resize(_stored_data_columns.size());
 
+    // wqt add start
+    {
+        LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns size:"
+                  << _stored_data_columns.size();
+        for (auto const& col : _stored_data_columns) {
+            LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
+                      << col->get_name();
+        }
+        LOG(INFO) << "wqt BlockReader::_init_agg_state _tablet_schema: "
+                  << _tablet_schema->dump_structure();
+    }
+    // wqt add end
+
     auto& tablet_schema = *_tablet_schema;
     for (auto idx : _agg_columns_idx) {
         auto column = tablet_schema.column(
                 read_params.origin_return_columns->at(_return_columns_loc[idx]));
         AggregateFunctionPtr function =
                 column.get_aggregate_function(vectorized::AGG_READER_SUFFIX);
+
+        // wqt add start
+        {
+            LOG(INFO) << "wqt BlockReader::_init_agg_state idx:" << idx
+                      << ", _return_columns_loc:" << _return_columns_loc[idx]
+                      << ", origin_return_columns:"
+                      << read_params.origin_return_columns->at(_return_columns_loc[idx]);
+            for (auto const& col : _stored_data_columns) {
+                LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
+                          << col->get_name();
+            }
+        }
+        // wqt add end
 
         // to avoid coredump when something goes wrong(i.e. column missmatch)
         if (!function) {
@@ -204,7 +230,9 @@ Status BlockReader::init(const ReaderParams& read_params) {
         auto cid = read_params.origin_return_columns->at(i);
         for (int j = 0; j < read_params.return_columns.size(); ++j) {
             if (read_params.return_columns[j] == cid) {
-                if (j < _tablet->num_key_columns() || _tablet->keys_type() != AGG_KEYS) {
+                //if (j < _tablet->num_key_columns() || _tablet->keys_type() != AGG_KEYS) {
+                if (j < _tablet_schema->num_key_columns() ||
+                    _tablet_schema->keys_type() != AGG_KEYS) {
                     _normal_columns_idx.emplace_back(j);
                 } else {
                     _agg_columns_idx.emplace_back(j);

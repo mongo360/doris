@@ -18,8 +18,6 @@
 // https://github.com/apache/impala/blob/branch-2.9.0/be/src/util/threadpool.cc
 // and modified by Doris
 
-#include "util/threadpool.h"
-
 #include <algorithm>
 #include <cstdint>
 #include <limits>
@@ -34,6 +32,7 @@
 #include "util/debug/sanitizer_scopes.h"
 #include "util/scoped_cleanup.h"
 #include "util/thread.h"
+#include "util/threadpool.h"
 
 namespace doris {
 using namespace ErrorCode;

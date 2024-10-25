@@ -18,9 +18,9 @@
 // https://github.com/apache/impala/blob/branch-2.9.0/be/src/util/thread.cc
 // and modified by Doris
 
-#include "thread.h"
-
 #include <sys/resource.h>
+
+#include "thread.h"
 
 #ifndef __APPLE__
 // IWYU pragma: no_include <bits/types/struct_sched_param.h>
