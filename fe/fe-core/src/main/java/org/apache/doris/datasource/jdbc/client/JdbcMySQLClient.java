@@ -168,7 +168,7 @@ public class JdbcMySQLClient extends JdbcClient {
                 tableSchema.add(field);
             }
         } catch (SQLException e) {
-            throw new JdbcClientException("failed to get jdbc columns info for table %.%s: %s",
+            throw new JdbcClientException("failed to get jdbc columns info for table %s.%s: %s",
                     e, dbName, tableName, Util.getRootCauseMessage(e));
         } finally {
             close(rs, conn);
