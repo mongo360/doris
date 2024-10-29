@@ -307,7 +307,7 @@ public class SchemaChangeJobV2 extends AlterJobV2 {
         }
         // wqt add start
         try {
-            Thread.sleep(10000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             LOG.warn("InterruptedException: ", e);
         }
@@ -492,7 +492,7 @@ public class SchemaChangeJobV2 extends AlterJobV2 {
 
         // wqt add start
         try {
-            Thread.sleep(60000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             LOG.warn("InterruptedException: ", e);
         }
