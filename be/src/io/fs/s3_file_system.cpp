@@ -99,7 +99,7 @@ namespace io {
 
 // Guarded by external lock.
 Status S3FileSystem::set_conf(S3Conf s3_conf) {
-    if (s3_conf.ak == _s3_conf.ak && s3_conf.sk == _s3_conf.sk && s3_conf.token == _s3_conf.token) {
+    if (s3_conf.get_hash() == _s3_conf.get_hash()) {
         return Status::OK(); // Same conf
     }
 
@@ -107,9 +107,13 @@ Status S3FileSystem::set_conf(S3Conf s3_conf) {
     reset_conf.ak = s3_conf.ak;
     reset_conf.sk = s3_conf.sk;
     reset_conf.token = s3_conf.token;
+    reset_conf.connect_timeout_ms = s3_conf.connect_timeout_ms;
+    reset_conf.max_connections = s3_conf.max_connections;
+    reset_conf.request_timeout_ms = s3_conf.request_timeout_ms;
+    reset_conf.use_virtual_addressing = s3_conf.use_virtual_addressing;
     auto client = S3ClientFactory::instance().create(s3_conf);
     if (!client) {
-        return Status::InternalError("failed to init s3 client with {}", _s3_conf.to_string());
+        return Status::InternalError("failed to init s3 client with {}", s3_conf.to_string());
     }
 
     {
