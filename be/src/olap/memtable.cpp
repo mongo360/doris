@@ -102,6 +102,23 @@ MemTable::MemTable(TabletSharedPtr tablet, Schema* schema, const TabletSchema* t
             _num_columns = partial_update_info->partial_update_input_columns.size();
         }
     }
+
+    // wqt add start
+    {
+        std::string col_names;
+        for (auto& col : _schema->columns()) {
+            col_names += col->name() + "-";
+        }
+        std::string slot_offset;
+        for (auto& slot : _column_offset) {
+            slot_offset += std::to_string(slot) + "-";
+        }
+        LOG(INFO) << "wqt MemTable::MemTable _schema:" << _schema->num_columns() << ":" << col_names
+                  << ", _tablet_schema:" << _tablet_schema->dump_structure()
+                  << ", slot_offset:" << slot_offset
+                  << " ,is_dynamic_schema:" << _tablet_schema->is_dynamic_schema();
+    }
+    // wqt add end
 }
 void MemTable::_init_columns_offset_by_slot_descs(const std::vector<SlotDescriptor*>* slot_descs,
                                                   const TupleDescriptor* tuple_desc) {
@@ -516,6 +533,9 @@ Status MemTable::_do_flush() {
         _aggregate<true>();
     }
     vectorized::Block block = _output_mutable_block.to_block();
+    // wqt add start
+    { LOG(INFO) << "wqt MemTable::_do_flush block:" << block.dump_data(); }
+    // wqt add end
     FlushContext ctx;
     ctx.block = &block;
     if (_tablet_schema->is_dynamic_schema()) {

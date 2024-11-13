@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/merger.h"
-
 #include <gen_cpp/olap_file.pb.h>
 #include <gen_cpp/types.pb.h>
 #include <stddef.h>
@@ -33,6 +31,7 @@
 
 #include "common/config.h"
 #include "common/logging.h"
+#include "olap/merger.h"
 #include "olap/olap_common.h"
 #include "olap/olap_define.h"
 #include "olap/reader.h"
@@ -87,6 +86,9 @@ Status Merger::vmerge_rowsets(TabletSharedPtr tablet, ReaderType reader_type,
     reader_params.return_columns.resize(cur_tablet_schema->num_columns());
     std::iota(reader_params.return_columns.begin(), reader_params.return_columns.end(), 0);
     reader_params.origin_return_columns = &reader_params.return_columns;
+    // wqt add start
+    LOG(INFO) << "wqt Merger::vmerge_rowsets reader_params:" << reader_params.to_string();
+    // wqt add end
     RETURN_IF_ERROR(reader.init(reader_params));
 
     if (reader_params.record_rowids) {
@@ -233,6 +235,10 @@ Status Merger::vertical_compact_one_group(
 
     reader_params.return_columns = column_group;
     reader_params.origin_return_columns = &reader_params.return_columns;
+    // wqt add start
+    LOG(INFO) << "wqt Merger::vertical_compact_one_group reader_params:"
+              << reader_params.to_string();
+    // wqt add end
     RETURN_IF_ERROR(reader.init(reader_params));
 
     if (reader_params.record_rowids) {

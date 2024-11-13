@@ -694,6 +694,8 @@ Status VScanNode::_normalize_function_filters(VExpr* expr, VExprContext* expr_ct
             *pdt = temp_pdt;
         }
     }
+    // wqt add start
+    // wqt add end
     return Status::OK();
 }
 

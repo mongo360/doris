@@ -1298,6 +1298,13 @@ Status FileColumnIterator::get_row_ranges_by_zone_map(
 
 Status FileColumnIterator::get_row_ranges_by_bloom_filter(
         const AndBlockColumnPredicate* col_predicates, RowRanges* row_ranges) {
+    // wqt add start
+    {
+        LOG(INFO) << "wqt FileColumnIterator::get_row_ranges_by_bloom_filter can_do_bloom_filter:"
+                  << col_predicates->can_do_bloom_filter(true)
+                  << " ,has_bloom_filter_index:" << _reader->has_bloom_filter_index(true);
+    }
+    // wqt add end
     if ((col_predicates->can_do_bloom_filter(false) && _reader->has_bloom_filter_index(false)) ||
         (col_predicates->can_do_bloom_filter(true) && _reader->has_bloom_filter_index(true))) {
         RETURN_IF_ERROR(_reader->get_row_ranges_by_bloom_filter(col_predicates, row_ranges));

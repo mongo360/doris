@@ -657,6 +657,11 @@ void DeltaWriter::_build_current_tablet_schema(int64_t index_id,
         LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema new tablet_schema: "
                   << TabletSchema::deterministic_string_serialize(new_tablet_schema_pb);
 
+        TabletSchemaPB tablet_max_schema_pb;
+        _tablet->tablet_schema()->to_schema_pb(&tablet_max_schema_pb);
+        LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema tablet max tablet_schema: "
+                  << TabletSchema::deterministic_string_serialize(tablet_max_schema_pb);
+
         LOG(INFO) << "wqt DeltaWriter::_build_current_tablet_schema tablet_id:"
                   << _tablet->get_tablet_info().tablet_id
                   << ", track: " << doris::get_stack_trace();

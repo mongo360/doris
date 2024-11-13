@@ -542,6 +542,12 @@ Status VNodeChannel::add_block(vectorized::Block* block, const Payload* payload)
     if (payload->second.empty()) {
         return Status::OK();
     }
+
+    // wqt add start
+    LOG(INFO) << "wqt VNodeChannel::add_block index_id:" << _index_channel->_index_id
+              << ", block: " << block->dump_data();
+    // wqt add end
+
     // If add_block() when _eos_is_produced==true, there must be sth wrong, we can only mark this channel as failed.
     auto st = none_of({_cancelled, _eos_is_produced});
     if (!st.ok()) {
@@ -721,7 +727,8 @@ void VNodeChannel::try_send_block(RuntimeState* state) {
     request.set_packet_seq(_next_packet_seq);
     auto block = mutable_block->to_block();
     // wqt add start
-    LOG(INFO) << "wqt VNodeChannel::try_send_block block: " << block.dump_data();
+    LOG(INFO) << "wqt VNodeChannel::try_send_block index_id:" << _index_channel->_index_id
+              << ", block: " << block.dump_data();
     // wqt add end
     CHECK(block.rows() == request.tablet_ids_size())
             << "block rows: " << block.rows() << ", tablet_ids_size: " << request.tablet_ids_size();
@@ -1333,6 +1340,10 @@ Status VOlapTableSink::send(RuntimeState* state, vectorized::Block* input_block,
     if (state->query_options().dry_run_query) {
         return status;
     }
+
+    // wqt add start
+    LOG(INFO) << "wqt VOlapTableSink::send block: " << input_block->dump_data();
+    // wqt add end
 
     auto rows = input_block->rows();
     auto bytes = input_block->bytes();

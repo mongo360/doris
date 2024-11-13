@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/compaction.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <glog/logging.h>
@@ -39,6 +37,7 @@
 #include "io/fs/file_system.h"
 #include "io/fs/file_writer.h"
 #include "io/fs/remote_file_system.h"
+#include "olap/compaction.h"
 #include "olap/cumulative_compaction_policy.h"
 #include "olap/cumulative_compaction_time_series_policy.h"
 #include "olap/data_dir.h"
@@ -172,6 +171,8 @@ bool Compaction::is_rowset_tidy(std::string& pre_max_key, const RowsetSharedPtr&
         return true;
     }
     if (rhs->is_segments_overlapping()) {
+        LOG(INFO) << "wqt Compaction::is_rowset_tidy "
+                     "is_segments_overlapping false";
         return false;
     }
     // check segment size
@@ -181,15 +182,21 @@ bool Compaction::is_rowset_tidy(std::string& pre_max_key, const RowsetSharedPtr&
     for (auto segment_size : segments_size) {
         // is segment is too small, need to do compaction
         if (segment_size < min_tidy_size) {
+            LOG(INFO) << "wqt Compaction::is_rowset_tidy "
+                         "segment_size false";
             return false;
         }
     }
     std::string min_key;
     auto ret = rhs->min_key(&min_key);
     if (!ret) {
+        LOG(INFO) << "wqt Compaction::is_rowset_tidy "
+                     "min_key false";
         return false;
     }
     if (min_key <= pre_max_key) {
+        LOG(INFO) << "wqt Compaction::is_rowset_tidy pre_max_key false " << min_key << " --- "
+                  << pre_max_key;
         return false;
     }
     CHECK(rhs->max_key(&pre_max_key));
@@ -257,14 +264,20 @@ void Compaction::build_basic_info() {
 
 bool Compaction::handle_ordered_data_compaction() {
     if (!config::enable_ordered_data_compaction) {
+        LOG(INFO) << "wqt Compaction::handle_ordered_data_compaction "
+                     "config::enable_ordered_data_compactio false";
         return false;
     }
     if (compaction_type() == ReaderType::READER_COLD_DATA_COMPACTION) {
         // The remote file system does not support to link files.
+        LOG(INFO) << "wqt Compaction::handle_ordered_data_compaction "
+                     "ReaderType::READER_COLD_DATA_COMPACTION false";
         return false;
     }
     if (_tablet->keys_type() == KeysType::UNIQUE_KEYS &&
         _tablet->enable_unique_key_merge_on_write()) {
+        LOG(INFO) << "wqt Compaction::handle_ordered_data_compaction "
+                     "KeysType::UNIQUE_KEYS false";
         return false;
     }
     // check delete version: if compaction type is base compaction and
@@ -272,6 +285,8 @@ bool Compaction::handle_ordered_data_compaction() {
     if (compaction_type() == ReaderType::READER_BASE_COMPACTION) {
         for (auto& rowset : _input_rowsets) {
             if (rowset->rowset_meta()->has_delete_predicate()) {
+                LOG(INFO) << "wqt Compaction::handle_ordered_data_compaction "
+                             "ReaderType::READER_BASE_COMPACTION false";
                 return false;
             }
         }
@@ -284,6 +299,8 @@ bool Compaction::handle_ordered_data_compaction() {
     for (auto i = 0; i < input_size; ++i) {
         if (!is_rowset_tidy(pre_max_key, _input_rowsets[i])) {
             if (i <= input_size / 2) {
+                LOG(INFO) << "wqt Compaction::handle_ordered_data_compaction "
+                             "is_rowset_tidy false";
                 return false;
             } else {
                 _input_rowsets.resize(i);

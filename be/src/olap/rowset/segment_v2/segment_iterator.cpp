@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/rowset/segment_v2/segment_iterator.h"
-
 #include <assert.h>
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Types_types.h>
@@ -30,6 +28,8 @@
 #include <set>
 #include <utility>
 #include <vector>
+
+#include "olap/rowset/segment_v2/segment_iterator.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -559,6 +559,12 @@ Status SegmentIterator::_get_row_ranges_from_conditions(RowRanges* condition_row
             // get row ranges by bf index of this column,
             RowRanges column_bf_row_ranges = RowRanges::create_single(num_rows());
             DCHECK(_opts.col_id_to_predicates.count(cid) > 0);
+            // wqt add start
+            {
+                LOG(INFO) << "wqt SegmentIterator::_get_row_ranges_from_conditions cid:" << cid
+                          << ", column_size:" << _column_iterators.size();
+            }
+            // wqt add end
             RETURN_IF_ERROR(_column_iterators[cid]->get_row_ranges_by_bloom_filter(
                     _opts.col_id_to_predicates.at(cid).get(), &column_bf_row_ranges));
             RowRanges::ranges_intersection(bf_row_ranges, column_bf_row_ranges, &bf_row_ranges);

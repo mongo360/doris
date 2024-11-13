@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/task/engine_publish_version_task.h"
-
 #include <gen_cpp/AgentService_types.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <util/defer_op.h>
+
+#include "olap/task/engine_publish_version_task.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
 #include <map>
@@ -368,6 +368,15 @@ void TabletPublishTxnTask::handle() {
     if (_tablet->enable_unique_key_merge_on_write()) {
         rowset_update_lock.lock();
     }
+
+    // wqt add start
+    {
+        TabletSchemaPB tablet_max_schema_pb;
+        _tablet->tablet_schema()->to_schema_pb(&tablet_max_schema_pb);
+        LOG(INFO) << "wqt TabletPublishTxnTask::handle tablet max tablet_schema: "
+                  << TabletSchema::deterministic_string_serialize(tablet_max_schema_pb);
+    }
+    // wqt add end
     _stats.schedule_time_us = MonotonicMicros() - _stats.submit_time_us;
     _result = StorageEngine::instance()->txn_manager()->publish_txn(
             _partition_id, _tablet, _transaction_id, _version, &_stats);
