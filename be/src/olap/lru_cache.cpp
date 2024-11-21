@@ -257,6 +257,9 @@ void LRUCache::release(Cache::Handle* handle) {
         last_ref = _unref(e);
         if (last_ref) {
             _usage -= e->total_size;
+            LOG(INFO) << "wqt LRUCache::release last_ref key:" << e->key().to_string()
+                      << ", _usage:" << _usage << ", _capacity:" << _capacity << "\n"
+                      << doris::get_stack_trace();
         } else if (e->in_cache && e->refs == 1) {
             // only exists in cache
             if (_usage > _capacity) {
@@ -266,6 +269,9 @@ void LRUCache::release(Cache::Handle* handle) {
                 e->in_cache = false;
                 _unref(e);
                 _usage -= e->total_size;
+                LOG(INFO) << "wqt LRUCache::release >_capacity key:" << e->key().to_string()
+                          << ", _usage:" << _usage << ", _capacity:" << _capacity << "\n"
+                          << doris::get_stack_trace();
                 last_ref = true;
             } else {
                 // put it to LRU free list
@@ -339,6 +345,9 @@ void LRUCache::_evict_one_entry(LRUHandle* e) {
     DCHECK(removed);
     e->in_cache = false;
     _unref(e);
+    LOG(INFO) << "wqt LRUCache::_evict_one_entry key:" << e->key().to_string()
+              << ", _usage:" << _usage << ", _capacity:" << _capacity << "\n"
+              << doris::get_stack_trace();
     _usage -= e->total_size;
 }
 
@@ -391,6 +400,9 @@ Cache::Handle* LRUCache::insert(const CacheKey& key, uint32_t hash, void* value,
             old->in_cache = false;
             if (_unref(old)) {
                 _usage -= old->total_size;
+                LOG(INFO) << "wqt LRUCache::insert old_key key:" << e->key().to_string()
+                          << ", _usage:" << _usage << ", _capacity:" << _capacity << "\n"
+                          << doris::get_stack_trace();
                 // old is on LRU because it's in cache and its reference count
                 // was just 1 (Unref returned 0)
                 _lru_remove(old);
@@ -420,6 +432,9 @@ void LRUCache::erase(const CacheKey& key, uint32_t hash) {
         if (e != nullptr) {
             last_ref = _unref(e);
             if (last_ref) {
+                LOG(INFO) << "wqt LRUCache::erase last_ref key:" << e->key().to_string()
+                          << ", _usage:" << _usage << ", _capacity:" << _capacity << "\n"
+                          << doris::get_stack_trace();
                 _usage -= e->total_size;
                 if (e->in_cache) {
                     // locate in free list

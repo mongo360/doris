@@ -104,20 +104,20 @@ MemTable::MemTable(TabletSharedPtr tablet, Schema* schema, const TabletSchema* t
     }
 
     // wqt add start
-    {
-        std::string col_names;
-        for (auto& col : _schema->columns()) {
-            col_names += col->name() + "-";
-        }
-        std::string slot_offset;
-        for (auto& slot : _column_offset) {
-            slot_offset += std::to_string(slot) + "-";
-        }
-        LOG(INFO) << "wqt MemTable::MemTable _schema:" << _schema->num_columns() << ":" << col_names
-                  << ", _tablet_schema:" << _tablet_schema->dump_structure()
-                  << ", slot_offset:" << slot_offset
-                  << " ,is_dynamic_schema:" << _tablet_schema->is_dynamic_schema();
-    }
+    // {
+    //     std::string col_names;
+    //     for (auto& col : _schema->columns()) {
+    //         col_names += col->name() + "-";
+    //     }
+    //     std::string slot_offset;
+    //     for (auto& slot : _column_offset) {
+    //         slot_offset += std::to_string(slot) + "-";
+    //     }
+    //     LOG(INFO) << "wqt MemTable::MemTable _schema:" << _schema->num_columns() << ":" << col_names
+    //               << ", _tablet_schema:" << _tablet_schema->dump_structure()
+    //               << ", slot_offset:" << slot_offset
+    //               << " ,is_dynamic_schema:" << _tablet_schema->is_dynamic_schema();
+    // }
     // wqt add end
 }
 void MemTable::_init_columns_offset_by_slot_descs(const std::vector<SlotDescriptor*>* slot_descs,
@@ -501,8 +501,8 @@ Status MemTable::_generate_delete_bitmap(int32_t segment_id) {
 }
 
 Status MemTable::flush() {
-    LOG(INFO) << "wqt MemTable::flush begin to flush memtable for tablet: " << tablet_id()
-              << ", memsize: " << memory_usage() << ", rows: " << _stat.raw_rows;
+    // LOG(INFO) << "wqt MemTable::flush begin to flush memtable for tablet: " << tablet_id()
+    //           << ", memsize: " << memory_usage() << ", rows: " << _stat.raw_rows;
     // For merge_on_write table, it must get all segments in this flush.
     // The id of new segment is set by the _num_segment of beta_rowset_writer,
     // and new segment ids is between [atomic_num_segments_before_flush, atomic_num_segments_after_flush),
@@ -534,7 +534,7 @@ Status MemTable::_do_flush() {
     }
     vectorized::Block block = _output_mutable_block.to_block();
     // wqt add start
-    { LOG(INFO) << "wqt MemTable::_do_flush block:" << block.dump_data(); }
+    // { LOG(INFO) << "wqt MemTable::_do_flush block:" << block.dump_data(); }
     // wqt add end
     FlushContext ctx;
     ctx.block = &block;

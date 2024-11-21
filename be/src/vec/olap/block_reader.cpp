@@ -165,16 +165,18 @@ Status BlockReader::_init_agg_state(const ReaderParams& read_params) {
     _stored_has_variable_length_tag.resize(_stored_data_columns.size());
 
     // wqt add start
+    /*
     {
-        LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns size:"
+    //    LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns size:"
                   << _stored_data_columns.size();
         for (auto const& col : _stored_data_columns) {
-            LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
+    //        LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
                       << col->get_name();
         }
-        LOG(INFO) << "wqt BlockReader::_init_agg_state _tablet_schema: "
+    //    LOG(INFO) << "wqt BlockReader::_init_agg_state _tablet_schema: "
                   << _tablet_schema->dump_structure();
     }
+    */
     // wqt add end
 
     auto& tablet_schema = *_tablet_schema;
@@ -185,16 +187,18 @@ Status BlockReader::_init_agg_state(const ReaderParams& read_params) {
                 column.get_aggregate_function(vectorized::AGG_READER_SUFFIX);
 
         // wqt add start
+        /*
         {
-            LOG(INFO) << "wqt BlockReader::_init_agg_state idx:" << idx
+        //    LOG(INFO) << "wqt BlockReader::_init_agg_state idx:" << idx
                       << ", _return_columns_loc:" << _return_columns_loc[idx]
                       << ", origin_return_columns:"
                       << read_params.origin_return_columns->at(_return_columns_loc[idx]);
             for (auto const& col : _stored_data_columns) {
-                LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
+        //        LOG(INFO) << "wqt BlockReader::_init_agg_state _stored_data_columns "
                           << col->get_name();
             }
         }
+        */
         // wqt add end
 
         // to avoid coredump when something goes wrong(i.e. column missmatch)

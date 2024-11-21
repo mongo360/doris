@@ -81,10 +81,10 @@ public:
         if (!bf->is_ngram_bf()) return true;
         if (_page_ng_bf) {
             // wqt add start
-            {
-                LOG(INFO) << "wqt LikeColumnPredicate::evaluate_and result:"
-                          << bf->contains(*_page_ng_bf);
-            }
+            // {
+            //     LOG(INFO) << "wqt LikeColumnPredicate::evaluate_and result:"
+            //               << bf->contains(*_page_ng_bf);
+            // }
             // wqt add end
             return bf->contains(*_page_ng_bf);
         }

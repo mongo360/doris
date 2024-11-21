@@ -87,7 +87,7 @@ Status Merger::vmerge_rowsets(TabletSharedPtr tablet, ReaderType reader_type,
     std::iota(reader_params.return_columns.begin(), reader_params.return_columns.end(), 0);
     reader_params.origin_return_columns = &reader_params.return_columns;
     // wqt add start
-    LOG(INFO) << "wqt Merger::vmerge_rowsets reader_params:" << reader_params.to_string();
+    // LOG(INFO) << "wqt Merger::vmerge_rowsets reader_params:" << reader_params.to_string();
     // wqt add end
     RETURN_IF_ERROR(reader.init(reader_params));
 
@@ -236,8 +236,8 @@ Status Merger::vertical_compact_one_group(
     reader_params.return_columns = column_group;
     reader_params.origin_return_columns = &reader_params.return_columns;
     // wqt add start
-    LOG(INFO) << "wqt Merger::vertical_compact_one_group reader_params:"
-              << reader_params.to_string();
+    // LOG(INFO) << "wqt Merger::vertical_compact_one_group reader_params:"
+    //           << reader_params.to_string();
     // wqt add end
     RETURN_IF_ERROR(reader.init(reader_params));
 

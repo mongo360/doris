@@ -370,12 +370,12 @@ void TabletPublishTxnTask::handle() {
     }
 
     // wqt add start
-    {
-        TabletSchemaPB tablet_max_schema_pb;
-        _tablet->tablet_schema()->to_schema_pb(&tablet_max_schema_pb);
-        LOG(INFO) << "wqt TabletPublishTxnTask::handle tablet max tablet_schema: "
-                  << TabletSchema::deterministic_string_serialize(tablet_max_schema_pb);
-    }
+    // {
+    //     TabletSchemaPB tablet_max_schema_pb;
+    //     _tablet->tablet_schema()->to_schema_pb(&tablet_max_schema_pb);
+    //     LOG(INFO) << "wqt TabletPublishTxnTask::handle tablet max tablet_schema: "
+    //               << TabletSchema::deterministic_string_serialize(tablet_max_schema_pb);
+    // }
     // wqt add end
     _stats.schedule_time_us = MonotonicMicros() - _stats.submit_time_us;
     _result = StorageEngine::instance()->txn_manager()->publish_txn(

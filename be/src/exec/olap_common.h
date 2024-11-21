@@ -822,7 +822,7 @@ Status ColumnValueRange<primitive_type>::add_range(SQLFilterOp op, CppType value
 
     if (is_fixed_value_range()) {
         // wqt add start
-        VLOG_NOTICE << "wqt add_range is_fixed_value_range";
+        // VLOG_NOTICE << "wqt add_range is_fixed_value_range";
         // wqt add end
         std::pair<IteratorType, IteratorType> bound_pair = _fixed_values.equal_range(value);
 
@@ -861,31 +861,29 @@ Status ColumnValueRange<primitive_type>::add_range(SQLFilterOp op, CppType value
         _low_value = TYPE_MAX;
     } else {
         // wqt add start
-        /*
-        VLOG_NOTICE << "wqt add_range not_fixed op primitive_type: " << int(primitive_type);
-        if (primitive_type == TYPE_DATETIME) {
-            int64_t intValue(0);
-            int64_t intLowValue(0);
-            int64_t intHighValue(0);
-            if (std::is_same<CppType, doris::vectorized::VecDateTimeValue>::value) {
-                reinterpret_cast<doris::vectorized::VecDateTimeValue*>((void*)(&value))
-                        ->unix_timestamp(&intValue, TimezoneUtils::default_time_zone);
-            }
-            reinterpret_cast<doris::vectorized::VecDateTimeValue*>(&_low_value)
-                    ->unix_timestamp(&intLowValue, TimezoneUtils::default_time_zone);
-            reinterpret_cast<doris::vectorized::VecDateTimeValue*>(&_high_value)
-                    ->unix_timestamp(&intHighValue, TimezoneUtils::default_time_zone);
-            VLOG_NOTICE << "wqt add_range not_fixed op: " << std::to_string(int(op))
-                        << " primitive_type: " << int(primitive_type)
-                        << " CppType: " << typeid(CppType).name()
-                        << " value: " << cast_to_string<primitive_type, CppType>(value, _scale)
-                        << " - " << intValue << " _low_value: "
-                        << cast_to_string<primitive_type, CppType>(_low_value, _scale) << " - "
-                        << intLowValue << " _high_value: "
-                        << cast_to_string<primitive_type, CppType>(_high_value, _scale) << " - "
-                        << intHighValue;
-        }
-        */
+        // VLOG_NOTICE << "wqt add_range not_fixed op primitive_type: " << int(primitive_type);
+        // if (primitive_type == TYPE_DATETIME) {
+        //     int64_t intValue(0);
+        //     int64_t intLowValue(0);
+        //     int64_t intHighValue(0);
+        //     if (std::is_same<CppType, doris::vectorized::VecDateTimeValue>::value) {
+        //         reinterpret_cast<doris::vectorized::VecDateTimeValue*>((void*)(&value))
+        //                 ->unix_timestamp(&intValue, TimezoneUtils::default_time_zone);
+        //     }
+        //     reinterpret_cast<doris::vectorized::VecDateTimeValue*>(&_low_value)
+        //             ->unix_timestamp(&intLowValue, TimezoneUtils::default_time_zone);
+        //     reinterpret_cast<doris::vectorized::VecDateTimeValue*>(&_high_value)
+        //             ->unix_timestamp(&intHighValue, TimezoneUtils::default_time_zone);
+        //     VLOG_NOTICE << "wqt add_range not_fixed op: " << std::to_string(int(op))
+        //                 << " primitive_type: " << int(primitive_type)
+        //                 << " CppType: " << typeid(CppType).name()
+        //                 << " value: " << cast_to_string<primitive_type, CppType>(value, _scale)
+        //                 << " - " << intValue << " _low_value: "
+        //                 << cast_to_string<primitive_type, CppType>(_low_value, _scale) << " - "
+        //                 << intLowValue << " _high_value: "
+        //                 << cast_to_string<primitive_type, CppType>(_high_value, _scale) << " - "
+        //                 << intHighValue;
+        // }
         // wqt add end
 
         if (_high_value > _low_value) {

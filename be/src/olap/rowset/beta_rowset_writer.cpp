@@ -484,8 +484,8 @@ Status BetaRowsetWriter::flush_single_memtable(const vectorized::Block* block, i
     if (block->rows() == 0) {
         return Status::OK();
     }
-    LOG(INFO) << "wqt BetaRowsetWriter::flush_single_memtable rowset_id: "
-              << _context.rowset_id.to_string();
+    // LOG(INFO) << "wqt BetaRowsetWriter::flush_single_memtable rowset_id: "
+    // << _context.rowset_id.to_string();
 
     std::unique_ptr<segment_v2::SegmentWriter> writer;
     RETURN_IF_ERROR(_create_segment_writer(&writer, ctx));
@@ -735,7 +735,7 @@ Status BetaRowsetWriter::_do_create_segment_writer(
         segment_id = segid_offset + _segment_start_id;
         path = BetaRowset::segment_file_path(_context.rowset_dir, _context.rowset_id, segment_id);
     }
-    LOG(INFO) << "wqt BetaRowsetWriter::_do_create_segment_writer path: " << path;
+    // LOG(INFO) << "wqt BetaRowsetWriter::_do_create_segment_writer path: " << path;
     auto fs = _rowset_meta->fs();
     if (!fs) {
         return Status::Error<INIT_FAILED>("get fs failed");

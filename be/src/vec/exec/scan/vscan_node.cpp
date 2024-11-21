@@ -449,7 +449,7 @@ Status VScanNode::_normalize_conjuncts() {
         std::vector<TCondition> filters;
         std::visit([&](auto&& range) { range.to_olap_filter(filters); }, it.second.second);
         string logInfo;
-        logInfo = "wqt _slot_id_to_value_range column: " + it.second.first->col_name() + ", [";
+        //logInfo = "wqt _slot_id_to_value_range column: " + it.second.first->col_name() + ", [";
         for (auto& node : filters) {
             logInfo += apache::thrift::ThriftDebugString(node) + ",";
         }
@@ -506,7 +506,7 @@ Status VScanNode::_normalize_predicate(const VExprSPtr& conjunct_expr_root, VExp
             // wqt add start
             /*
             {
-                VLOG_NOTICE << "wqt _normalize_predicate leaf start node_type: "
+            //    VLOG_NOTICE << "wqt _normalize_predicate leaf start node_type: "
                             << cur_expr->node_type() << " impl: " << cur_expr->debug_string();
             }
             */
@@ -571,7 +571,7 @@ Status VScanNode::_normalize_predicate(const VExprSPtr& conjunct_expr_root, VExp
                     std::visit([&](auto&& range) { range.to_olap_filter(filters); }, *range);
 
                     string logInfo;
-                    logInfo = "wqt _normalize_predicate _is_predicate_acting_on_slot finish expr:" +
+                //    logInfo = "wqt _normalize_predicate _is_predicate_acting_on_slot finish expr:" +
                               cur_expr->debug_string() + ",  range: [";
                     for (auto& node : filters) {
                         logInfo += apache::thrift::ThriftDebugString(node) + ",";
@@ -1346,7 +1346,7 @@ Status VScanNode::_change_value_range(ColumnValueRange<PrimitiveType>& temp_rang
         std::vector<TCondition> filters;
         temp_range.to_olap_filter(filters);
         string logInfo;
-        logInfo = "wqt _change_value_range fn_name: " + fn_name +
+    //    logInfo = "wqt _change_value_range fn_name: " + fn_name +
                   typeid(ChangeFixedValueRangeFunc).name() +
                   " PrimitiveType:" + std::to_string(int(PrimitiveType)) + " ";
         for (auto& node : filters) {

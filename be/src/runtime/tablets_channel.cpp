@@ -65,8 +65,8 @@ TabletsChannel::TabletsChannel(const TabletsChannelKey& key, const UniqueId& loa
     std::call_once(once_flag, [] {
         REGISTER_HOOK_METRIC(tablet_writer_count, [&]() { return _s_tablet_writer_count.load(); });
     });
-    LOG(INFO) << "wqt TabletsChannel::TabletsChannel load_id:" << load_id.to_string()
-              << ", index_id:" << key.index_id;
+    //LOG(INFO) << "wqt TabletsChannel::TabletsChannel load_id:" << load_id.to_string()
+    //          << ", index_id:" << key.index_id;
 }
 
 TabletsChannel::~TabletsChannel() {
@@ -113,8 +113,8 @@ Status TabletsChannel::open(const PTabletWriterOpenRequest& request) {
     RETURN_IF_ERROR(_schema->init(request.schema()));
     _tuple_desc = _schema->tuple_desc();
 
-    LOG(INFO) << "wqt TabletsChannel::open txn_id: " << _txn_id << ", index_id:" << _index_id
-              << ", tuple_desc:" << _tuple_desc->debug_string();
+    //LOG(INFO) << "wqt TabletsChannel::open txn_id: " << _txn_id << ", index_id:" << _index_id
+    //          << ", tuple_desc:" << _tuple_desc->debug_string();
 
     _num_remaining_senders = request.num_senders();
     _next_seqs.resize(_num_remaining_senders, 0);
@@ -203,7 +203,7 @@ Status TabletsChannel::close(
 
         _write_single_replica = write_single_replica;
 
-        LOG(INFO) << "wqt TabletsChannel::close need_wait_writers:" << need_wait_writers.size();
+        //LOG(INFO) << "wqt TabletsChannel::close need_wait_writers:" << need_wait_writers.size();
         // 2. wait all writer finished flush.
         for (auto writer : need_wait_writers) {
             writer->wait_flush();
@@ -393,9 +393,9 @@ Status TabletsChannel::_open_all_writers(const PTabletWriterOpenRequest& request
         wrequest.is_high_priority = _is_high_priority;
         wrequest.table_schema_param = _schema;
 
-        LOG(INFO) << "wqt TabletsChannel::_open_all_writers add writer index_id:"
-                  << wrequest.index_id << ", tablet_id:" << wrequest.tablet_id
-                  << ", slots:" << wrequest.slots->size();
+        //LOG(INFO) << "wqt TabletsChannel::_open_all_writers add writer index_id:"
+        //          << wrequest.index_id << ", tablet_id:" << wrequest.tablet_id
+        //          << ", slots:" << wrequest.slots->size();
 
         DeltaWriter* writer = nullptr;
         auto st = DeltaWriter::open(&wrequest, &writer, _profile, _load_id);

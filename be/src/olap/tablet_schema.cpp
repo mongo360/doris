@@ -528,15 +528,15 @@ vectorized::AggregateFunctionPtr TabletColumn::get_aggregate_function(std::strin
                    [](unsigned char c) { return std::tolower(c); });
 
     // wqt add start
-    LOG(INFO) << "wqt TabletColumn::get_aggregate_function agg_name:" << origin_name << " - "
-              << suffix << ", type:" << type->get_name()
-              << ", _type:" << type->get_type_as_type_descriptor().type;
+    // LOG(INFO) << "wqt TabletColumn::get_aggregate_function agg_name:" << origin_name << " - "
+    //           << suffix << ", type:" << type->get_name()
+    //           << ", _type:" << type->get_type_as_type_descriptor().type;
     // wqt add end
 
     auto function = vectorized::AggregateFunctionSimpleFactory::instance().get(agg_name, {type},
                                                                                type->is_nullable());
     if (function) {
-        LOG(INFO) << "wqt TabletColumn::get_aggregate_function function finded";
+        // LOG(INFO) << "wqt TabletColumn::get_aggregate_function function finded";
         return function;
     }
     if (type->get_type_as_type_descriptor().type != PrimitiveType::TYPE_AGG_STATE) {

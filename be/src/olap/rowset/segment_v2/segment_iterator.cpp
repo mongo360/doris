@@ -560,10 +560,10 @@ Status SegmentIterator::_get_row_ranges_from_conditions(RowRanges* condition_row
             RowRanges column_bf_row_ranges = RowRanges::create_single(num_rows());
             DCHECK(_opts.col_id_to_predicates.count(cid) > 0);
             // wqt add start
-            {
-                LOG(INFO) << "wqt SegmentIterator::_get_row_ranges_from_conditions cid:" << cid
-                          << ", column_size:" << _column_iterators.size();
-            }
+            // {
+            //     LOG(INFO) << "wqt SegmentIterator::_get_row_ranges_from_conditions cid:" << cid
+            //               << ", column_size:" << _column_iterators.size();
+            // }
             // wqt add end
             RETURN_IF_ERROR(_column_iterators[cid]->get_row_ranges_by_bloom_filter(
                     _opts.col_id_to_predicates.at(cid).get(), &column_bf_row_ranges));

@@ -1907,27 +1907,27 @@ void Tablet::generate_tablet_meta_copy(TabletMetaSharedPtr new_tablet_meta) cons
         TabletSchemaPB max_tablet_schema_pb;
         _max_version_schema->to_schema_pb(&max_tablet_schema_pb);
         json2pb::ProtoMessageToJson(max_tablet_schema_pb, &json_meta, json_options);
-        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _max_version_schema: "
-                  << json_meta << ", num_key_columns:" << _max_version_schema->num_key_columns();
+        // LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _max_version_schema: "
+        //           << json_meta << ", num_key_columns:" << _max_version_schema->num_key_columns();
 
         TabletSchemaPB tablet_schema_pb;
         std::string json_meta_1;
         _schema->to_schema_pb(&tablet_schema_pb);
         json2pb::ProtoMessageToJson(tablet_schema_pb, &json_meta_1, json_options);
-        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _schema: " << json_meta_1
-                  << ", num_key_columns:" << _schema->num_key_columns();
+        // LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _schema: " << json_meta_1
+        //           << ", num_key_columns:" << _schema->num_key_columns();
 
         TabletSchemaPB meta_tablet_schema_pb;
         std::string json_meta_2;
         _tablet_meta->tablet_schema()->to_schema_pb(&meta_tablet_schema_pb);
         json2pb::ProtoMessageToJson(meta_tablet_schema_pb, &json_meta_2, json_options);
-        LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _tablet_meta._schema "
-                  << json_meta_2 << ", num_key_columns:" << _schema->num_key_columns();
+        // LOG(INFO) << "wqt Tablet::generate_tablet_meta_copyorigin _tablet_meta._schema "
+        //           << json_meta_2 << ", num_key_columns:" << _schema->num_key_columns();
 
         for (auto entry : _rs_version_map) {
             std::string json_rowset_meta;
             entry.second->rowset_meta()->json_rowset_meta(&json_rowset_meta);
-            LOG(INFO) << "wqt Tablet::rowset_meta_info: " << json_rowset_meta;
+            // LOG(INFO) << "wqt Tablet::rowset_meta_info: " << json_rowset_meta;
         }
     }
     // wqt add end

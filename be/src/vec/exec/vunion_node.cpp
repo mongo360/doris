@@ -90,11 +90,11 @@ Status VUnionNode::prepare(RuntimeState* state) {
     for (int i = 0; i < _child_expr_lists.size(); ++i) {
         RETURN_IF_ERROR(VExpr::prepare(_child_expr_lists[i], state, child(i)->row_desc()));
     }
-    LOG(INFO) << "wqt VUnionNode::prepare row_desc: " << _row_descriptor.debug_string();
-    if (_output_row_descriptor) {
-        LOG(INFO) << "wqt VUnionNode::prepare oupput_row_desc: "
-                  << _output_row_descriptor->debug_string();
-    }
+    //LOG(INFO) << "wqt VUnionNode::prepare row_desc: " << _row_descriptor.debug_string();
+    //if (_output_row_descriptor) {
+    //    LOG(INFO) << "wqt VUnionNode::prepare oupput_row_desc: "
+    //              << _output_row_descriptor->debug_string();
+    //}
     return Status::OK();
 }
 

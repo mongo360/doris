@@ -272,7 +272,7 @@ Status NewOlapScanNode::_build_key_ranges_and_filters() {
             std::visit([&](auto&& range) { range.to_olap_filter(filters); }, iter.second);
 
             string logInfo;
-            logInfo = "wqt _colname_to_value_range column: " + iter.first + ", [";
+        //    logInfo = "wqt _colname_to_value_range column: " + iter.first + ", [";
             for (auto& node : filters) {
                 logInfo += apache::thrift::ThriftDebugString(node) + ",";
             }

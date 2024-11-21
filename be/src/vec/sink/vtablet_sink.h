@@ -390,7 +390,7 @@ public:
             : _parent(parent), _index_id(index_id), _where_clause(where_clause) {
         _index_channel_tracker =
                 std::make_unique<MemTracker>("IndexChannel:indexID=" + std::to_string(_index_id));
-        LOG(INFO) << "wqtlog IndexChannel::IndexChannel index_id " << _index_id;
+        //LOG(INFO) << "wqtlog IndexChannel::IndexChannel index_id " << _index_id;
     }
     ~IndexChannel();
 

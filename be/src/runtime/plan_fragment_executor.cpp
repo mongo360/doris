@@ -350,13 +350,15 @@ Status PlanFragmentExecutor::open_vectorized_internal() {
 Status PlanFragmentExecutor::get_vectorized_internal(::doris::vectorized::Block* block, bool* eos) {
     while (!_done) {
         // wqt add start
+        /*
         {
-            LOG(INFO) << "wqt PlanFragmentExecutor::get_vectorized_internal has_output:"
+        //    LOG(INFO) << "wqt PlanFragmentExecutor::get_vectorized_internal has_output:"
                       << _plan->has_output_row_descriptor()
                       << ", slots_num:" << _plan->row_desc().num_materialized_slots() << "row_desc"
                       << _plan->row_desc().debug_string()
                       << ", tuple_desc_size:" << _plan->row_desc().tuple_descriptors().size();
         }
+        */
         // wqt add end
         block->clear_column_data(_plan->row_desc().num_materialized_slots());
         RETURN_IF_ERROR(_plan->get_next_after_projects(

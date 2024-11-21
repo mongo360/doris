@@ -526,21 +526,21 @@ Status TabletReader::_init_conditions_param(const ReaderParams& read_params) {
     };
 
     // wqt add start
-    {
-        LOG(INFO) << "wqt TabletReader::_init_conditions_param function_filters:"
-                  << read_params.function_filters.size()
-                  << ", _tablet->schema:" << _tablet->tablet_schema()->num_columns();
-    }
+    // {
+    //     LOG(INFO) << "wqt TabletReader::_init_conditions_param function_filters:"
+    //               << read_params.function_filters.size()
+    //               << ", _tablet->schema:" << _tablet->tablet_schema()->num_columns();
+    // }
     // wqt add end
     for (const auto& filter : read_params.function_filters) {
         _col_predicates.emplace_back(_parse_to_predicate(filter));
         auto* pred = _col_predicates.back();
         // wqt add start
-        {
-            LOG(INFO) << "wqt TabletReader::_init_conditions_param pred->column_id:"
-                      << pred->column_id()
-                      << ", _tablet->schema:" << _tablet->tablet_schema()->num_columns();
-        }
+        // {
+        //     LOG(INFO) << "wqt TabletReader::_init_conditions_param pred->column_id:"
+        //               << pred->column_id()
+        //               << ", _tablet->schema:" << _tablet->tablet_schema()->num_columns();
+        // }
         // wqt add end
         // const auto& col = _tablet->tablet_schema()->column(pred->column_id());
         // auto is_like = is_like_predicate(pred);
@@ -549,11 +549,11 @@ Status TabletReader::_init_conditions_param(const ReaderParams& read_params) {
         auto is_like = is_like_predicate(pred);
         auto* tablet_index = _tablet_schema->get_ngram_bf_index(col.unique_id());
         // wqt add start
-        {
-            LOG(INFO) << "wqt TabletReader::_init_conditions_param col_id:" << col.unique_id()
-                      << ", name:" << col.name()
-                      << ", _index:" << static_cast<const void*>(tablet_index);
-        }
+        // {
+        //     LOG(INFO) << "wqt TabletReader::_init_conditions_param col_id:" << col.unique_id()
+        //               << ", name:" << col.name()
+        //               << ", _index:" << static_cast<const void*>(tablet_index);
+        // }
         // wqt add end
 
         if (is_like && tablet_index && config::enable_query_like_bloom_filter) {
@@ -568,10 +568,10 @@ Status TabletReader::_init_conditions_param(const ReaderParams& read_params) {
             if (_token_extractor.string_like_to_bloom_filter(pattern.data(), pattern.length(),
                                                              *ng_bf)) {
                 // wqt add start
-                {
-                    LOG(INFO) << "wqt TabletReader::_init_conditions_param add page_ng_bf:"
-                              << static_cast<const void*>(ng_bf.get());
-                }
+                // {
+                //     LOG(INFO) << "wqt TabletReader::_init_conditions_param add page_ng_bf:"
+                //               << static_cast<const void*>(ng_bf.get());
+                // }
                 // wqt add end
                 pred->set_page_ng_bf(std::move(ng_bf));
             }

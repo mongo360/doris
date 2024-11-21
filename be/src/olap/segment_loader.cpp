@@ -15,11 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/segment_loader.h"
-
 #include "common/config.h"
 #include "olap/olap_define.h"
 #include "olap/rowset/beta_rowset.h"
+#include "olap/segment_loader.h"
 #include "util/stopwatch.hpp"
 
 namespace doris {
@@ -56,6 +55,15 @@ void SegmentCache::insert(const SegmentCache::CacheKey& key, SegmentCache::Cache
 
     auto lru_handle = _cache->insert(key.encode(), &value, sizeof(SegmentCache::CacheValue),
                                      deleter, CachePriority::NORMAL, meta_mem_usage);
+
+    // wqt add start
+    // {
+    //     LOG(INFO) << "wqt SegmentCache::insert cache insert key:" << key.encode()
+    //               << ", segments:" << value.segments.size() << "--" << meta_mem_usage
+    //               << " ,handler:" << static_cast<const void*>(lru_handle) << "\n"
+    //               << doris::get_stack_trace();
+    // }
+    // wqt add end
     handle->init(_cache.get(), lru_handle);
 }
 

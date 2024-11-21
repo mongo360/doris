@@ -123,18 +123,18 @@ Status IndexChannel::init(RuntimeState* state, const std::vector<TTabletWithPart
                 channel = it->second;
             }
             channel->add_tablet(tablet);
-            LOG(INFO) << "wqt IndexChannel::init VNodeChannel add tablet node_id: " << node_id
-                      << ", tablet_id: " << tablet.tablet_id
-                      << ", partition_id: " << tablet.partition_id;
+            //LOG(INFO) << "wqt IndexChannel::init VNodeChannel add tablet node_id: " << node_id
+            //          << ", tablet_id: " << tablet.tablet_id
+            //          << ", partition_id: " << tablet.partition_id;
             if (_parent->_write_single_replica) {
                 auto slave_location = _parent->_slave_location->find_tablet(tablet.tablet_id);
                 if (slave_location != nullptr) {
                     channel->add_slave_tablet_nodes(tablet.tablet_id, slave_location->node_ids);
-                    LOG(INFO) << "wqt IndexChannel::init VNodeChannel add_slave_tablet_nodes "
-                                 "table_id:"
-                              << tablet.tablet_id
-                              << ", nodes_ids: " << slave_location->node_ids.size() << " - "
-                              << slave_location->node_ids[0];
+                    //LOG(INFO) << "wqt IndexChannel::init VNodeChannel add_slave_tablet_nodes "
+                    //             "table_id:"
+                    //          << tablet.tablet_id
+                    //          << ", nodes_ids: " << slave_location->node_ids.size() << " - "
+                    //          << slave_location->node_ids[0];
                 }
             }
             channels.push_back(channel);
@@ -327,8 +327,8 @@ Status VNodeChannel::init(RuntimeState* state) {
     _stub = state->exec_env()->brpc_internal_client_cache()->get_client(_node_info.host,
                                                                         _node_info.brpc_port);
 
-    LOG(INFO) << "wqt VNodeChannel::init node_info: " << _node_info.host << ":"
-              << _node_info.brpc_port;
+    //LOG(INFO) << "wqt VNodeChannel::init node_info: " << _node_info.host << ":"
+    //          << _node_info.brpc_port;
 
     if (_stub == nullptr) {
         _cancelled = true;
@@ -544,8 +544,8 @@ Status VNodeChannel::add_block(vectorized::Block* block, const Payload* payload)
     }
 
     // wqt add start
-    LOG(INFO) << "wqt VNodeChannel::add_block index_id:" << _index_channel->_index_id
-              << ", block: " << block->dump_data();
+    //LOG(INFO) << "wqt VNodeChannel::add_block index_id:" << _index_channel->_index_id
+    //          << ", block: " << block->dump_data();
     // wqt add end
 
     // If add_block() when _eos_is_produced==true, there must be sth wrong, we can only mark this channel as failed.
@@ -727,8 +727,8 @@ void VNodeChannel::try_send_block(RuntimeState* state) {
     request.set_packet_seq(_next_packet_seq);
     auto block = mutable_block->to_block();
     // wqt add start
-    LOG(INFO) << "wqt VNodeChannel::try_send_block index_id:" << _index_channel->_index_id
-              << ", block: " << block.dump_data();
+    //LOG(INFO) << "wqt VNodeChannel::try_send_block index_id:" << _index_channel->_index_id
+    //          << ", block: " << block.dump_data();
     // wqt add end
     CHECK(block.rows() == request.tablet_ids_size())
             << "block rows: " << block.rows() << ", tablet_ids_size: " << request.tablet_ids_size();
@@ -1342,7 +1342,7 @@ Status VOlapTableSink::send(RuntimeState* state, vectorized::Block* input_block,
     }
 
     // wqt add start
-    LOG(INFO) << "wqt VOlapTableSink::send block: " << input_block->dump_data();
+    //LOG(INFO) << "wqt VOlapTableSink::send block: " << input_block->dump_data();
     // wqt add end
 
     auto rows = input_block->rows();
