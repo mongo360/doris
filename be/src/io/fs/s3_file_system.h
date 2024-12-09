@@ -103,7 +103,7 @@ protected:
             return path;
         } else {
             // path with no schema
-            return _root_path / path;
+            return _s3_conf.prefix / path;
         }
     }
 
