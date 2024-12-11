@@ -332,6 +332,9 @@ public:
             str += ", ";
             str += "is_nullable:";
             str += (p.is_nullable() ? "true" : "false");
+            str += ", ";
+            str += "unique_id:";
+            str += std::to_string(p.unique_id());
             str += ")";
         }
         str += "]";

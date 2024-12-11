@@ -175,6 +175,7 @@ public:
     UIntGauge* fragment_endpoint_count;
     UIntGauge* active_scan_context_count;
     UIntGauge* plan_fragment_count;
+    UIntGauge* pipeline_plan_fragment_count;
     UIntGauge* load_channel_count;
     UIntGauge* result_buffer_block_count;
     UIntGauge* result_block_queue_count;

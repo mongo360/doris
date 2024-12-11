@@ -246,6 +246,11 @@ Status TaskGroupTaskQueue::_push_back(PipelineTask* task) {
     auto* entity = task->get_task_group_entity();
     std::unique_lock<std::mutex> lock(_rs_mutex);
     entity->task_queue()->emplace(task);
+
+    VLOG_DEBUG << "wqt enqueue task, entity:" << entity->debug_string()
+               << ", group entity size: " << _group_entities.size()
+               << ", from_executor:" << from_executor << ", task: " << task->debug_string();
+
     if (_group_entities.find(entity) == _group_entities.end()) {
         _enqueue_task_group<from_executor>(entity);
     }
@@ -276,6 +281,10 @@ PipelineTask* TaskGroupTaskQueue::take(size_t core_id) {
     }
     auto task = entity->task_queue()->front();
     if (task) {
+        VLOG_DEBUG << "wqt take task, entity:" << entity->debug_string()
+                   << ", group entity size: " << _group_entities.size()
+                   << ", task: " << task->debug_string();
+
         entity->task_queue()->pop();
         task->pop_out_runnable_queue();
     }
@@ -306,7 +315,8 @@ void TaskGroupTaskQueue::_enqueue_task_group(taskgroup::TGPTEntityPtr tg_entity)
     }
     _group_entities.emplace(tg_entity);
     VLOG_DEBUG << "enqueue tg " << tg_entity->debug_string()
-               << ", group entity size: " << _group_entities.size();
+               << ", group entity size: " << _group_entities.size()
+               << ", from_worker:" << from_worker;
     _update_min_tg();
 }
 

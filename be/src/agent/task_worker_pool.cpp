@@ -1376,7 +1376,11 @@ void CreateTableTaskPool::_create_tablet_worker_thread_callback() {
             finish_tablet_infos.push_back(tablet_info);
             LOG_INFO("successfully create tablet")
                     .tag("signature", agent_task_req.signature)
-                    .tag("tablet_id", create_tablet_req.tablet_id);
+                    .tag("tablet_id", create_tablet_req.tablet_id)
+                    .tag("tablet_schema", tablet->tablet_schema()->dump_structure())
+                    .tag("rowset_num", tablet->rowset_map().size())
+                    .tag("rowset column",
+                         tablet->rowset_map().begin()->second->tablet_schema()->dump_structure());
         }
         TFinishTaskRequest finish_task_request;
         finish_task_request.__set_finish_tablet_infos(finish_tablet_infos);

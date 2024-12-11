@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "task_scheduler.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Types_types.h>
 #include <gen_cpp/types.pb.h>
@@ -24,6 +22,8 @@
 #include <sched.h>
 
 #include <algorithm>
+
+#include "task_scheduler.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
 #include <functional>
@@ -302,6 +302,7 @@ void TaskScheduler::_do_work(size_t index) {
             }
             continue;
         }
+        VLOG_DEBUG << "wqt TaskScheduler do work task " << task->debug_string();
 
         auto pipeline_state = task->get_state();
         switch (pipeline_state) {
