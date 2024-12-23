@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "operator.h"
-
 #include <glog/logging.h>
 
 #include <memory>
@@ -25,6 +23,7 @@
 #include "common/logging.h"
 #include "common/status.h"
 #include "exec/exec_node.h"
+#include "operator.h"
 #include "pipeline/exec/aggregation_sink_operator.h"
 #include "pipeline/exec/aggregation_source_operator.h"
 #include "pipeline/exec/analytic_sink_operator.h"

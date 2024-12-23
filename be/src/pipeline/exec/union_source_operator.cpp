@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline/exec/union_source_operator.h"
-
 #include <functional>
 #include <utility>
 
@@ -24,6 +22,7 @@
 #include "pipeline/exec/data_queue.h"
 #include "pipeline/exec/operator.h"
 #include "pipeline/exec/union_sink_operator.h"
+#include "pipeline/exec/union_source_operator.h"
 #include "pipeline/pipeline_x/dependency.h"
 #include "runtime/descriptors.h"
 #include "util/defer_op.h"

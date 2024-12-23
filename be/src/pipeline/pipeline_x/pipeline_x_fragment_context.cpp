@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline_x_fragment_context.h"
-
 #include <gen_cpp/DataSinks_types.h>
 #include <gen_cpp/PaloInternalService_types.h>
 #include <gen_cpp/PlanNodes_types.h>
 #include <gen_cpp/Planner_types.h>
 #include <pthread.h>
 #include <runtime/result_buffer_mgr.h>
+
+#include "pipeline_x_fragment_context.h"
 
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
@@ -298,10 +298,13 @@ Status PipelineXFragmentContext::prepare(const doris::TPipelineFragmentParams& r
 
     // 4. Initialize global states in pipelines.
     for (PipelinePtr& pipeline : _pipelines) {
+        VLOG_NOTICE << "wqt PipelineXFragmentContext::prepare prepare pipeline:"
+                    << pipeline->debug_string();
         SCOPED_TIMER(_prepare_all_pipelines_timer);
         pipeline->children().clear();
         RETURN_IF_ERROR(pipeline->prepare(_runtime_state.get()));
     }
+
     {
         // 5. Build pipeline tasks and initialize local state.
         SCOPED_TIMER(_build_tasks_timer);
@@ -758,6 +761,7 @@ Status PipelineXFragmentContext::_build_pipeline_x_tasks(
     _pipeline_parent_map.clear();
     _op_id_to_le_state.clear();
 
+    VLOG_NOTICE << "wqt _build_pipeline_x_tasks tasks:" << debug_string();
     return Status::OK();
 }
 

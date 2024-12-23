@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline/exec/olap_scan_operator.h"
-
 #include <fmt/format.h>
 
 #include <memory>
@@ -24,6 +22,7 @@
 #include "olap/parallel_scanner_builder.h"
 #include "olap/storage_engine.h"
 #include "olap/tablet_manager.h"
+#include "pipeline/exec/olap_scan_operator.h"
 #include "pipeline/exec/scan_operator.h"
 #include "service/backend_options.h"
 #include "util/to_string.h"
@@ -312,6 +311,11 @@ Status OlapScanLocalState::_init_scanners(std::list<vectorized::VScannerSPtr>* s
         scanner_builder.set_max_scanners_count(max_scanners_count);
         scanner_builder.set_min_rows_per_scanner(min_rows_per_scanner);
 
+        VLOG_NOTICE << "wqt OlapScanLocalState::_init_scanners state_max_scanners:"
+                    << state()->parallel_scan_max_scanners_count()
+                    << ", max_scanners:" << max_scanners_count
+                    << ", min_rows_per_scanner:" << min_rows_per_scanner;
+
         RETURN_IF_ERROR(scanner_builder.build_scanners(*scanners));
         for (auto& scanner : *scanners) {
             auto* olap_scanner = assert_cast<vectorized::NewOlapScanner*>(scanner.get());
@@ -356,6 +360,7 @@ Status OlapScanLocalState::_init_scanners(std::list<vectorized::VScannerSPtr>* s
                 std::max(1, (int)ranges->size() /
                                     std::min(scanners_per_tablet, size_based_scanners_per_tablet));
         int num_ranges = ranges->size();
+        VLOG_NOTICE << "wqt OlapScanLocalState::_init_scanners num_ranges:" << num_ranges;
         for (int i = 0; i < num_ranges;) {
             std::vector<doris::OlapScanRange*> scanner_ranges;
             scanner_ranges.push_back((*ranges)[i].get());

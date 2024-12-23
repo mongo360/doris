@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "scanner_context.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Metrics_types.h>
 #include <glog/logging.h>
@@ -31,6 +29,7 @@
 #include "runtime/descriptors.h"
 #include "runtime/exec_env.h"
 #include "runtime/runtime_state.h"
+#include "scanner_context.h"
 #include "util/uid_util.h"
 #include "vec/core/block.h"
 #include "vec/exec/scan/scanner_scheduler.h"
@@ -205,6 +204,11 @@ Status ScannerContext::init() {
     // In some situation, there are not too many big tablets involed, so we can reduce the thread number.
     // NOTE: when _all_scanners.size is zero, the _max_thread_num will be 0.
     _max_thread_num = std::min(_max_thread_num, (int32_t)_all_scanners.size());
+
+    VLOG_NOTICE << "wqt ScannerContext::init _max_thread_num:" << _max_thread_num
+                << ", scanners:" << _all_scanners.size()
+                << ", state-max_thread_num:" << _state->num_scanner_threads()
+                << ", simple_thread:" << simple_scan_scheduler;
 
     // 1. Calculate max concurrency
     // For select * from table limit 10; should just use one thread.

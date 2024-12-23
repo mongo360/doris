@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline_x_task.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Metrics_types.h>
 #include <glog/logging.h>
@@ -31,6 +29,7 @@
 #include "pipeline/pipeline.h"
 #include "pipeline/task_queue.h"
 #include "pipeline_x_fragment_context.h"
+#include "pipeline_x_task.h"
 #include "runtime/descriptors.h"
 #include "runtime/query_context.h"
 #include "runtime/thread_context.h"
@@ -349,6 +348,9 @@ Status PipelineXTask::execute(bool* eos) {
         if (*eos) {
             RETURN_IF_ERROR(close(Status::OK(), false));
         }
+        VLOG_NOTICE << "wqt PipelineXTask::execute task:" << print_id(instance_id())
+                    << ", pipelineid:" << pipeline_id() << ", name:" << task_name()
+                    << ", rows:" << _block->rows();
 
         if (_block->rows() != 0 || *eos) {
             SCOPED_TIMER(_sink_timer);

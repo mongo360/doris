@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "scan_operator.h"
-
 #include <fmt/format.h>
 
 #include <cstdint>
@@ -29,6 +27,7 @@
 #include "pipeline/exec/olap_scan_operator.h"
 #include "pipeline/exec/operator.h"
 #include "runtime/types.h"
+#include "scan_operator.h"
 #include "util/runtime_profile.h"
 #include "vec/exec/runtime_filter_consumer.h"
 #include "vec/exec/scan/pip_scanner_context.h"
@@ -111,6 +110,8 @@ Status ScanLocalState<Derived>::init(RuntimeState* state, LocalStateInfo& info) 
                                                  _parent->get_name() + "_DEPENDENCY");
     _wait_for_dependency_timer = ADD_TIMER_WITH_LEVEL(
             _runtime_profile, "WaitForDependency[" + _scan_dependency->name() + "]Time", 1);
+    VLOG_NOTICE << "wqt ScanLocalState<Derived>::init " << _scan_dependency->name() << ":"
+                << _scan_dependency->id();
     SCOPED_TIMER(exec_time_counter());
     SCOPED_TIMER(_init_timer);
     auto& p = _parent->cast<typename Derived::Parent>();
@@ -1017,6 +1018,7 @@ template <typename Derived>
 Status ScanLocalState<Derived>::_prepare_scanners() {
     std::list<vectorized::VScannerSPtr> scanners;
     RETURN_IF_ERROR(_init_scanners(&scanners));
+    VLOG_NOTICE << "wqt ScanLocalState<Derived>::_prepare_scanners scanners:" << scanners.size();
     // Init scanner wrapper
     for (auto it = scanners.begin(); it != scanners.end(); ++it) {
         _scanners.emplace_back(std::make_shared<vectorized::ScannerDelegate>(*it));

@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline_fragment_context.h"
-
 #include <gen_cpp/DataSinks_types.h>
 #include <gen_cpp/PaloInternalService_types.h>
 #include <gen_cpp/PlanNodes_types.h>
@@ -25,6 +23,8 @@
 #include <pthread.h>
 
 #include <cstdlib>
+
+#include "pipeline_fragment_context.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -101,6 +101,7 @@
 #include "task_scheduler.h"
 #include "util/container_util.hpp"
 #include "util/debug_util.h"
+#include "util/stack_util.h"
 #include "util/uid_util.h"
 #include "vec/common/assert_cast.h"
 #include "vec/exec/join/vhash_join_node.h"

@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/scan/new_olap_scan_node.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Metrics_types.h>
@@ -53,6 +51,7 @@
 #include "vec/columns/column.h"
 #include "vec/columns/column_const.h"
 #include "vec/common/string_ref.h"
+#include "vec/exec/scan/new_olap_scan_node.h"
 #include "vec/exec/scan/new_olap_scanner.h"
 #include "vec/exprs/vcast_expr.h"
 #include "vec/exprs/vectorized_fn_call.h"
@@ -723,6 +722,7 @@ Status NewOlapScanNode::_init_scanners(std::list<VScannerSPtr>* scanners) {
             }
         }
     }
+    VLOG_NOTICE << "wqt NewOlapScanNode::_init_scanners scanner size:" << scanners->size();
 
     return Status::OK();
 }

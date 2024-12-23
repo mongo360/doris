@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/exec/scan/vscan_node.h"
-
 #include <gen_cpp/Exprs_types.h>
 #include <gen_cpp/Metrics_types.h>
 #include <gen_cpp/Opcodes_types.h>
@@ -55,6 +53,7 @@
 #include "vec/core/types.h"
 #include "vec/exec/scan/pip_scanner_context.h"
 #include "vec/exec/scan/scanner_scheduler.h"
+#include "vec/exec/scan/vscan_node.h"
 #include "vec/exprs/vcompound_pred.h"
 #include "vec/exprs/vectorized_fn_call.h"
 #include "vec/exprs/vexpr.h"
@@ -146,6 +145,7 @@ Status VScanNode::prepare(RuntimeState* state) {
             auto [should_create_scanner, queue_id] =
                     _shared_scanner_controller->should_build_scanner_and_queue_id(id());
             _should_create_scanner = should_create_scanner;
+            VLOG_CRITICAL << "wqt VScanNode::prepare " << _should_create_scanner;
             _context_queue_id = queue_id;
         } else {
             _should_create_scanner = true;

@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "dependency.h"
-
 #include <memory>
 #include <mutex>
 
 #include "common/logging.h"
+#include "dependency.h"
 #include "pipeline/pipeline_fragment_context.h"
 #include "pipeline/pipeline_x/local_exchange/local_exchanger.h"
 #include "pipeline/pipeline_x/pipeline_x_task.h"
@@ -64,6 +63,8 @@ void Dependency::set_ready() {
         local_block_task.swap(_blocked_task);
     }
     for (auto* task : local_block_task) {
+        VLOG_NOTICE << "wqt Dependency::set_ready this:" << this
+                    << ", task:" << print_id(task->instance_id()) << ", name:" << task->task_name();
         task->wake_up();
     }
 }
@@ -72,6 +73,9 @@ Dependency* Dependency::is_blocked_by(PipelineXTask* task) {
     std::unique_lock<std::mutex> lc(_task_lock);
     auto ready = _ready.load();
     if (!ready && task) {
+        VLOG_NOTICE << "wqt Dependency::is_blocked_by this:" << this
+                    << ", add_block_task:" << print_id(task->instance_id())
+                    << ", pipelineid:" << task->pipeline_id() << ", name:" << task->task_name();
         _add_block_task(task);
     }
     return ready ? nullptr : this;

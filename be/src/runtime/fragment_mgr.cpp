@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "runtime/fragment_mgr.h"
-
 #include <brpc/controller.h>
 #include <bvar/latency_recorder.h>
 #include <exprs/runtime_filter.h>
@@ -47,6 +45,7 @@
 
 #include "common/status.h"
 #include "pipeline/pipeline_x/pipeline_x_fragment_context.h"
+#include "runtime/fragment_mgr.h"
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
 #include <cstdint>
@@ -1036,6 +1035,9 @@ Status FragmentMgr::exec_plan_fragment(const TPipelineFragmentParams& params,
         }
 
         for (const auto& local_param : params.local_params) {
+            VLOG_CRITICAL << "wqt query " << print_id(params.query_id) << " local_param is "
+                          << apache::thrift::ThriftDebugString(local_param).c_str();
+
             const TUniqueId& fragment_instance_id = local_param.fragment_instance_id;
             std::lock_guard<std::mutex> lock(_lock);
             auto iter = _pipeline_map.find(fragment_instance_id);
@@ -1048,6 +1050,7 @@ Status FragmentMgr::exec_plan_fragment(const TPipelineFragmentParams& params,
         }
 
         if (!params.__isset.need_wait_execution_trigger || !params.need_wait_execution_trigger) {
+            VLOG_CRITICAL << "wqt need_wait_execution_trigger false";
             query_ctx->set_ready_to_execute_only();
         }
 

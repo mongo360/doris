@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "pipeline_task.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Metrics_types.h>
 #include <glog/logging.h>
@@ -28,6 +26,7 @@
 #include "pipeline/exec/operator.h"
 #include "pipeline/pipeline.h"
 #include "pipeline_fragment_context.h"
+#include "pipeline_task.h"
 #include "runtime/descriptors.h"
 #include "runtime/query_context.h"
 #include "runtime/thread_context.h"
@@ -305,6 +304,8 @@ Status PipelineTask::execute(bool* eos) {
         *eos = _data_state == SourceState::FINISHED;
 
         if (_block->rows() != 0 || *eos) {
+            VLOG_NOTICE << "wqt PipelineTask::execute task:" << print_id(instance_id())
+                        << ", pipelineid:" << pipeline_id() << ", row:" << _block->rows();
             SCOPED_TIMER(_sink_timer);
             status = _sink->sink(_state, block, _data_state);
             if (!status.is<ErrorCode::END_OF_FILE>()) {

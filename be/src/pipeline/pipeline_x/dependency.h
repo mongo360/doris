@@ -102,8 +102,18 @@ public:
     bool ready() const { return _ready; }
 
     // Start the watcher. We use it to count how long this dependency block the current pipeline task.
-    void start_watcher() { _watcher.start(); }
-    [[nodiscard]] int64_t watcher_elapse_time() { return _watcher.elapsed_time(); }
+    void start_watcher() {
+        _watcher.start();
+        if (_name == "OLAP_SCAN_OPERATOR_DEPENDENCY") {
+            VLOG_NOTICE << "wqt start_watcher " << doris::get_stack_trace();
+        }
+    }
+    [[nodiscard]] int64_t watcher_elapse_time() {
+        if (_name == "OLAP_SCAN_OPERATOR_DEPENDENCY") {
+            VLOG_NOTICE << "wqt watcher_elapse_time " << doris::get_stack_trace();
+        }
+        return _watcher.elapsed_time();
+    }
 
     // Which dependency current pipeline task is blocked by. `nullptr` if this dependency is ready.
     [[nodiscard]] virtual Dependency* is_blocked_by(PipelineXTask* task = nullptr);

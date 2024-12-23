@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "task_scheduler.h"
-
 #include <fmt/format.h>
 #include <gen_cpp/Types_types.h>
 #include <gen_cpp/types.pb.h>
 #include <glog/logging.h>
 #include <sched.h>
+
+#include "task_scheduler.h"
 
 // IWYU pragma: no_include <bits/chrono.h>
 #include <chrono> // IWYU pragma: keep
@@ -119,6 +119,7 @@ void BlockedTaskScheduler::_schedule() {
         while (iter != local_blocked_tasks.end()) {
             auto* task = *iter;
             auto state = task->get_state();
+
             task->log_detail_if_need();
             if (state == PipelineTaskState::PENDING_FINISH) {
                 // should cancel or should finish
@@ -344,7 +345,15 @@ void TaskScheduler::_do_work(size_t index) {
                         {query_id, task_name, core_id, thread_id, start_time, end_time,
                          state_name});
             } else {
+                VLOG_NOTICE << "wqt TaskScheduler::_do_work task:" << print_id(task->instance_id())
+                            << ", pipelineid:" << task->pipeline_id()
+                            << ", name:" << task->task_name()
+                            << ", state:" << get_state_name(task->get_state());
                 status = task->execute(&eos);
+                VLOG_NOTICE << "wqt TaskScheduler::_do_work task:" << print_id(task->instance_id())
+                            << ", pipelineid:" << task->pipeline_id()
+                            << ", name:" << task->task_name() << ", eos:" << eos
+                            << ", state:" << get_state_name(task->get_state());
             }
         } catch (const Exception& e) {
             status = e.to_status();
