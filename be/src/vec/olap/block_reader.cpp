@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/olap/block_reader.h"
-
 #include <gen_cpp/olap_file.pb.h>
 #include <glog/logging.h>
 #include <stdint.h>
@@ -26,6 +24,8 @@
 #include <memory>
 #include <ostream>
 #include <string>
+
+#include "vec/olap/block_reader.h"
 
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
@@ -204,8 +204,7 @@ Status BlockReader::init(const ReaderParams& read_params) {
         auto cid = read_params.origin_return_columns->at(i);
         for (int j = 0; j < read_params.return_columns.size(); ++j) {
             if (read_params.return_columns[j] == cid) {
-                if (j < _tablet_schema->num_key_columns() || 
-                        _tablet_schema->keys_type() != AGG_KEYS) {
+                if (j < _tablet->num_key_columns() || _tablet->keys_type() != AGG_KEYS) {
                     _normal_columns_idx.emplace_back(j);
                 } else {
                     _agg_columns_idx.emplace_back(j);
