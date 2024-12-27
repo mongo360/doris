@@ -24,6 +24,7 @@
 #include <utility>
 
 #include "common/config.h"
+#include "common/logging.h"
 #include "common/status.h"
 #include "pipeline/exec/scan_operator.h"
 #include "runtime/descriptors.h"
@@ -205,10 +206,10 @@ Status ScannerContext::init() {
     // NOTE: when _all_scanners.size is zero, the _max_thread_num will be 0.
     _max_thread_num = std::min(_max_thread_num, (int32_t)_all_scanners.size());
 
-    VLOG_NOTICE << "wqt ScannerContext::init _max_thread_num:" << _max_thread_num
-                << ", scanners:" << _all_scanners.size()
-                << ", state-max_thread_num:" << _state->num_scanner_threads()
-                << ", simple_thread:" << simple_scan_scheduler;
+    VLOG_CRITICAL << "wqt ScannerContext::init _max_thread_num:" << _max_thread_num
+                  << ", scanners:" << _all_scanners.size()
+                  << ", state-max_thread_num:" << _state->num_scanner_threads()
+                  << ", simple_thread:" << simple_scan_scheduler;
 
     // 1. Calculate max concurrency
     // For select * from table limit 10; should just use one thread.
@@ -301,6 +302,9 @@ bool ScannerContext::empty_in_queue(int id) {
 
 Status ScannerContext::submit_scan_task(std::shared_ptr<ScanTask> scan_task) {
     _scanner_sched_counter->update(1);
+    VLOG_CRITICAL << "wqt ScannerContext::submit_scan_task this:" << (void*)this
+                  << ", task:" << (void*)scan_task.get() << ", task_eos:" << scan_task->is_eos()
+                  << ", track:" << doris::get_stack_trace();
     _num_scheduled_scanners++;
     return _scanner_scheduler_global->submit(shared_from_this(), scan_task);
 }

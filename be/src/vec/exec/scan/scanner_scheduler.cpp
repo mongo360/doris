@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "scanner_scheduler.h"
-
 #include <algorithm>
 #include <cstdint>
 #include <functional>
@@ -36,6 +34,7 @@
 #include "runtime/memory/mem_tracker.h"
 #include "runtime/runtime_state.h"
 #include "runtime/thread_context.h"
+#include "scanner_scheduler.h"
 #include "util/async_io.h" // IWYU pragma: keep
 #include "util/blocking_queue.hpp"
 #include "util/cpu_info.h"
@@ -282,6 +281,7 @@ void ScannerScheduler::_scanner_scan(std::shared_ptr<ScannerContext> ctx,
         }
         BlockUPtr free_block = ctx->get_free_block(first_read);
         if (free_block == nullptr) {
+            VLOG_CRITICAL << "wqt ScannerScheduler::_scanner_scan get_free_block limited";
             break;
         }
         // We got a new created block or a reused block.
@@ -344,6 +344,9 @@ void ScannerScheduler::_scanner_scan(std::shared_ptr<ScannerContext> ctx,
         scanner->mark_to_need_to_close();
     }
     scan_task->set_eos(eos);
+    VLOG_CRITICAL << "wqt ScannerScheduler::_scanner_scan eos:" << eos
+                  << ", raw_bytes_read:" << raw_bytes_read
+                  << ", run_time_watch:" << max_run_time_watch.elapsed_time();
     ctx->append_block_to_queue(scan_task);
 }
 

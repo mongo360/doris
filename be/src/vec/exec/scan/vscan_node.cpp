@@ -148,6 +148,7 @@ Status VScanNode::prepare(RuntimeState* state) {
             VLOG_CRITICAL << "wqt VScanNode::prepare " << _should_create_scanner;
             _context_queue_id = queue_id;
         } else {
+            VLOG_CRITICAL << "wqt VScanNode::prepare nopipeline " << _should_create_scanner;
             _should_create_scanner = true;
             _context_queue_id = 0;
         }

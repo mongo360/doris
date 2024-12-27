@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "parallel_scanner_builder.h"
-
 #include <shared_mutex>
 
 #include "olap/rowset/beta_rowset.h"
 #include "olap/segment_loader.h"
+#include "parallel_scanner_builder.h"
 #include "pipeline/exec/olap_scan_operator.h"
 #include "vec/exec/scan/new_olap_scanner.h"
 
@@ -188,6 +187,11 @@ Status ParallelScannerBuilder<ParentType>::_load() {
 
     _rows_per_scanner = _total_rows / _max_scanners_count;
     _rows_per_scanner = std::max<size_t>(_rows_per_scanner, _min_rows_per_scanner);
+
+    VLOG_CRITICAL << "wqt ParallelScannerBuilder<ParentType>::_load _total_rows:" << _total_rows
+                  << ", _max_scanners_count:" << _max_scanners_count
+                  << ", _min_rows_per_scanner:" << _min_rows_per_scanner
+                  << ", _rows_per_scanner:" << _rows_per_scanner;
 
     return Status::OK();
 }

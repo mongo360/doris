@@ -221,6 +221,7 @@ Status PipelineXTask::_open() {
         return status;
     });
     _opened = true;
+    VLOG_CRITICAL << "wqt PipelineXTask::_open " << debug_string();
     return Status::OK();
 }
 

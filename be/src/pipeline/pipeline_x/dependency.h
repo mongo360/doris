@@ -104,14 +104,12 @@ public:
     // Start the watcher. We use it to count how long this dependency block the current pipeline task.
     void start_watcher() {
         _watcher.start();
-        if (_name == "OLAP_SCAN_OPERATOR_DEPENDENCY") {
-            VLOG_NOTICE << "wqt start_watcher " << doris::get_stack_trace();
-        }
+        VLOG_CRITICAL << "wqt start_watcher " << _name << ",this:" << (void*)this
+                      << doris::get_stack_trace();
     }
     [[nodiscard]] int64_t watcher_elapse_time() {
-        if (_name == "OLAP_SCAN_OPERATOR_DEPENDENCY") {
-            VLOG_NOTICE << "wqt watcher_elapse_time " << doris::get_stack_trace();
-        }
+        VLOG_CRITICAL << "wqt watcher_elapse_time " << _name << ",this:" << (void*)this
+                      << doris::get_stack_trace();
         return _watcher.elapsed_time();
     }
 

@@ -711,6 +711,9 @@ Status NewOlapScanNode::_init_scanners(std::list<VScannerSPtr>* scanners) {
             for (int i = 0; i < num_ranges;) {
                 std::vector<doris::OlapScanRange*> scanner_ranges;
                 scanner_ranges.push_back((*ranges)[i].get());
+                VLOG_CRITICAL << "wqt NewOlapScanNode::_init_scanners tablet: "
+                              << tablet->tablet_id() << ", num_ranges:" << num_ranges
+                              << ", range:" << (*ranges)[i]->debug_string();
                 ++i;
                 for (int j = 1; i < num_ranges && j < ranges_per_scanner &&
                                 (*ranges)[i]->end_include == (*ranges)[i - 1]->end_include;
@@ -722,7 +725,7 @@ Status NewOlapScanNode::_init_scanners(std::list<VScannerSPtr>* scanners) {
             }
         }
     }
-    VLOG_NOTICE << "wqt NewOlapScanNode::_init_scanners scanner size:" << scanners->size();
+    VLOG_CRITICAL << "wqt NewOlapScanNode::_init_scanners scanner size:" << scanners->size();
 
     return Status::OK();
 }
