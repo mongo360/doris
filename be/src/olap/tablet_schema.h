@@ -328,6 +328,8 @@ public:
             str += "(";
             str += p.name();
             str += ", ";
+            str += std::to_string(p.unique_id());
+            str += ", ";
             str += TabletColumn::get_string_by_field_type(p.type());
             str += ", ";
             str += "is_nullable:";

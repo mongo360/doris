@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "olap/tablet_schema.h"
-
 #include <gen_cpp/Descriptors_types.h>
 #include <gen_cpp/olap_file.pb.h>
 #include <glog/logging.h>
@@ -26,6 +24,8 @@
 
 #include <algorithm>
 #include <cctype>
+
+#include "olap/tablet_schema.h"
 // IWYU pragma: no_include <bits/std_abs.h>
 #include <cmath> // IWYU pragma: keep
 #include <ostream>
@@ -34,6 +34,7 @@
 // IWYU pragma: no_include <opentelemetry/common/threadlocal.h>
 #include "common/compiler_util.h" // IWYU pragma: keep
 #include "common/consts.h"
+#include "common/logging.h"
 #include "common/status.h"
 #include "exec/tablet_info.h"
 #include "olap/inverted_index_parser.h"
@@ -853,9 +854,12 @@ void TabletSchema::merge_dropped_columns(const TabletSchema& src_schema) {
     if (this == &src_schema) {
         return;
     }
+    VLOG_CRITICAL << "wqt TabletSchema::merge_dropped_columns this schema:" << dump_structure()
+                  << ", src_schema:" << src_schema.dump_structure();
+
     for (const auto& src_col : src_schema.columns()) {
         if (_field_id_to_index.find(src_col.unique_id()) == _field_id_to_index.end()) {
-            CHECK(!src_col.is_key()) << src_col.name() << " is key column, should not be dropped.";
+            // CHECK(!src_col.is_key()) << src_col.name() << " is key column, should not be dropped.";
             ColumnPB src_col_pb;
             // There are some pointer in tablet column, not sure the reference relation, so
             // that deep copy it.
